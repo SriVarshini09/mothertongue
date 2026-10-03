@@ -49,6 +49,7 @@ export function checkPdfRange(from: number, to: number, pageCount: number): stri
 
 export const translateSchema = z.object({
   text: z.string().trim().min(1).max(MAX_TEXT_CHARS),
+  sourceLanguage: z.string().trim().min(2).max(80).optional(),
   targetLanguage: z.string().trim().min(2).max(80),
 });
 

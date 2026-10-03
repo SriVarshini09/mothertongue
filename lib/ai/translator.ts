@@ -68,11 +68,12 @@ async function translateChunk(
   system: string,
   targetLanguage: string,
   chunkText: string,
+  sourceLanguage?: string,
   retryConstraint?: string
 ): Promise<string> {
   const user = retryConstraint
-    ? `${buildTranslationUserMessage(targetLanguage, chunkText)}\n\nFIDELITY CONSTRAINT FOR THIS RETRY: ${retryConstraint} Translate again, preserving all semantic roles exactly.`
-    : buildTranslationUserMessage(targetLanguage, chunkText);
+    ? `${buildTranslationUserMessage(targetLanguage, chunkText, sourceLanguage)}\n\nFIDELITY CONSTRAINT FOR THIS RETRY: ${retryConstraint} Translate again, preserving all semantic roles exactly.`
+    : buildTranslationUserMessage(targetLanguage, chunkText, sourceLanguage);
   const result = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     temperature: 0,
@@ -92,22 +93,26 @@ async function translateChunk(
  */
 export async function translateText(
   openai: OpenAI,
-  { text, targetLanguage }: TranslateRequest
+  { text, sourceLanguage, targetLanguage }: TranslateRequest
 ): Promise<TranslateResponse> {
   const chunks = chunkDocument(text);
-  const system = buildTranslationSystemPrompt(targetLanguage);
+  const system = buildTranslationSystemPrompt(targetLanguage, sourceLanguage);
   const outputs: string[] = [];
   for (const chunk of chunks) {
-    outputs.push(await translateChunk(openai, system, targetLanguage, chunk.text));
+    outputs.push(await translateChunk(openai, system, targetLanguage, chunk.text, sourceLanguage));
   }
   let translatedText = outputs.join('\n\n').trim();
   if (chunks.length === 1 && text.length <= VERIFY_MAX_CHARS && translatedText) {
     const check = await checkFidelity(openai, text, translatedText);
     if (!check.ok) {
       translatedText = (
-        await translateChunk(openai, system, targetLanguage, chunks[0].text, check.issue)
+        await translateChunk(openai, system, targetLanguage, chunks[0].text, sourceLanguage, check.issue)
       ).trim();
     }
   }
-  return { sourceLanguage: 'Auto-detected', targetLanguage, translatedText };
+  return {
+    sourceLanguage: sourceLanguage && !/^auto[- ]?detect/i.test(sourceLanguage) ? sourceLanguage : 'Auto-detected',
+    targetLanguage,
+    translatedText,
+  };
 }

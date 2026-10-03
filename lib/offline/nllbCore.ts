@@ -1,30 +1,19 @@
 /**
  * NLLB local translation core (shared by worker and main-thread fallback).
  * transformers.js is dynamically imported so neither the server bundle nor
- * the initial client bundle pays for it. WebGPU preferred, WASM fallback.
+ * the initial client bundle pays for it. The shipped offline runtime uses
+ * the verified WASM provider for consistent browser support.
  * FLORES codes throughout; model files come from the downloaded pack.
  */
+import { NLLB_FLORES } from './nllbLanguages';
+
+export { NLLB_FLORES } from './nllbLanguages';
 
 export const NLLB_MODEL_ID = 'Xenova/nllb-200-distilled-600M';
 // 'q8' maps to the *_quantized.onnx weights (~870MB total). NOTE: the older
 // value 'quantized' is not a valid v4 dtype and silently falls back to fp32
 // (~3.4GB) — verified against the loader's suffix mapping.
 export const NLLB_DTYPE = 'q8';
-
-export const NLLB_FLORES: Record<string, string> = {
-  Telugu: 'tel_Telu',
-  Tamil: 'tam_Taml',
-  Hindi: 'hin_Deva',
-  Kannada: 'kan_Knda',
-  Malayalam: 'mal_Mlym',
-  Bengali: 'ben_Beng',
-  Marathi: 'mar_Deva',
-  Japanese: 'jpn_Jpan',
-  Korean: 'kor_Hang',
-  Chinese: 'zho_Hans',
-  Spanish: 'spa_Latn',
-  English: 'eng_Latn',
-};
 
 type Translator = (
   text: string,
@@ -37,21 +26,21 @@ let activeDevice: 'webgpu' | 'wasm' = 'wasm';
 async function loadPipeline(): Promise<Translator> {
   if (!pipelinePromise) {
     pipelinePromise = (async () => {
-      const { pipeline } = await import('@huggingface/transformers');
-      try {
-        const pipe = (await pipeline('translation', NLLB_MODEL_ID, {
-          dtype: NLLB_DTYPE,
-          device: 'webgpu',
-        })) as unknown as Translator;
-        activeDevice = 'webgpu';
-        return pipe;
-      } catch {
-        const pipe = (await pipeline('translation', NLLB_MODEL_ID, {
-          dtype: NLLB_DTYPE,
-        })) as unknown as Translator;
-        activeDevice = 'wasm';
-        return pipe;
+      const { env, pipeline } = await import('@huggingface/transformers');
+      if (typeof location !== 'undefined' && env.backends.onnx?.wasm) {
+        const base = new URL('/onnxruntime/', location.origin).href;
+        env.backends.onnx.wasm.wasmPaths = {
+          mjs: `${base}ort-wasm-simd-threaded.asyncify.mjs`,
+          wasm: `${base}ort-wasm-simd-threaded.asyncify.wasm`,
+        };
+        env.useWasmCache = true;
       }
+      const pipe = (await pipeline('translation', NLLB_MODEL_ID, {
+        dtype: NLLB_DTYPE,
+        device: 'wasm',
+      })) as unknown as Translator;
+      activeDevice = 'wasm';
+      return pipe;
     })().catch((err) => {
       pipelinePromise = null;
       throw err;
@@ -64,9 +53,8 @@ export function nllbDevice(): 'webgpu' | 'wasm' {
   return activeDevice;
 }
 
-/** Capability probe: WebGPU present, else WASM (always available). */
-export function nllbBackend(): 'webgpu' | 'wasm' {
-  if (typeof navigator !== 'undefined' && 'gpu' in navigator && navigator.gpu) return 'webgpu';
+/** The bundled offline backend is WASM for deterministic browser support. */
+export function nllbBackend(): 'wasm' {
   return 'wasm';
 }
 
@@ -77,11 +65,12 @@ export function nllbSupports(language: string): boolean {
 export async function nllbTranslate(
   text: string,
   targetLanguage: string,
-  sourceLanguage = 'English'
+  sourceLanguage = 'Auto-detect'
 ): Promise<string> {
   const tgt = NLLB_FLORES[targetLanguage];
-  const src = NLLB_FLORES[sourceLanguage] ?? 'eng_Latn';
+  const src = NLLB_FLORES[sourceLanguage];
   if (!tgt) throw new Error(`nllb-unsupported-language: ${targetLanguage}`);
+  if (!src) throw new Error('nllb-source-language-required');
   const translator = await loadPipeline();
   const out = await translator(text, { src_lang: src, tgt_lang: tgt });
   const str = (Array.isArray(out) ? out[0]?.translation_text : out.translation_text) ?? '';

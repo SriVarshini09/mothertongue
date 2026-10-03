@@ -7,9 +7,15 @@ import { describeLanguage, languages } from '@/lib/languages';
 export default function LanguageSelector({
   value,
   onChange,
+  label = 'Translate into',
+  allowAutoDetect = false,
+  id = 'language-button',
 }: {
   value: string;
   onChange: (name: string) => void;
+  label?: string;
+  allowAutoDetect?: boolean;
+  id?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -19,6 +25,7 @@ export default function LanguageSelector({
   const searchRef = useRef<HTMLInputElement>(null);
 
   const selected = describeLanguage(value);
+  const labelId = allowAutoDetect ? 'source-language-label' : 'target-language-label';
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -65,17 +72,17 @@ export default function LanguageSelector({
 
   return (
     <div className="language-line">
-      <label id="target-label" htmlFor="language-button">
-        Translate into
+      <label id={labelId} htmlFor={id}>
+        {label}
       </label>
       <div className="select-wrap" ref={boxRef}>
         <button
-          id="language-button"
+          id={id}
           type="button"
           className="lang-button"
           aria-haspopup="listbox"
           aria-expanded={open}
-          aria-labelledby="target-label language-button"
+          aria-labelledby={`${labelId} ${id}`}
           onClick={() => setOpen((v) => !v)}
         >
           <span>
@@ -100,6 +107,21 @@ export default function LanguageSelector({
               />
             </div>
             <div className="lang-list">
+              {allowAutoDetect && !query && !custom && (
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={value === 'Auto-detect'}
+                  className={`lang-option${value === 'Auto-detect' ? ' selected' : ''}`}
+                  onClick={() => {
+                    onChange('Auto-detect');
+                    setOpen(false);
+                  }}
+                >
+                  <span><span className="muted">Auto-detect source language</span></span>
+                  {value === 'Auto-detect' && <Check size={15} aria-hidden />}
+                </button>
+              )}
               {!query && !custom && <div className="lang-group">Popular</div>}
               {query && (
                 <div className="lang-group">

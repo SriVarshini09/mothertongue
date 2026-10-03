@@ -4,11 +4,15 @@ import { extractImageTexts } from '@/lib/ai/extractor';
 import { normalizeExtractedText } from '@/lib/documents/normalize';
 import { checkImageFiles } from '@/lib/validation/requests';
 import { describeError, logStage } from '@/lib/log';
+import { protectApiRequest } from '@/lib/rateLimit';
+import { MAX_IMAGE_BYTES, MAX_IMAGES } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  const limited = await protectApiRequest(request, 'extract-image', 10, 60_000, MAX_IMAGES * MAX_IMAGE_BYTES + 1024 * 1024);
+  if (limited) return limited;
   try {
     const form = await request.formData();
     let files = form.getAll('images').filter((v): v is File => v instanceof File);

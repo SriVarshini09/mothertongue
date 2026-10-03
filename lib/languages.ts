@@ -1,3 +1,5 @@
+import { NLLB_LANGUAGE_CATALOG } from './offline/nllbLanguages';
+
 export type Language = { name: string; native: string; popular?: boolean };
 
 /**
@@ -6,7 +8,7 @@ export type Language = { name: string; native: string; popular?: boolean };
  * listed can still be typed via the selector's "Other language" option —
  * the translation backend accepts any language name.
  */
-export const languages: Language[] = [
+const curatedLanguages: Language[] = [
   // ── India (priority) ──
   { name: 'Telugu', native: 'తెలుగు', popular: true },
   { name: 'Tamil', native: 'தமிழ்', popular: true },
@@ -160,6 +162,23 @@ export const languages: Language[] = [
   // ── Constructed ──
   { name: 'Esperanto', native: 'Esperanto' },
 ];
+
+// Keep the hand-curated order and endonyms, then append any NLLB languages
+// that were not already present. This gives the selector and offline drawer
+// one consistent product catalog without duplicate rows.
+const languageByName = new Map<string, Language>();
+for (const language of curatedLanguages) languageByName.set(language.name, language);
+for (const language of NLLB_LANGUAGE_CATALOG) {
+  if (!languageByName.has(language.name)) {
+    languageByName.set(language.name, {
+      name: language.name,
+      native: language.native,
+      popular: language.popular,
+    });
+  }
+}
+
+export const languages: Language[] = [...languageByName.values()];
 
 export const popularLanguages = languages.filter((l) => l.popular);
 

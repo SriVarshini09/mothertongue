@@ -4,11 +4,15 @@ import { extractPdfPages, getPdfPageCount, isScannedSelection } from '@/lib/docu
 import { normalizeExtractedText } from '@/lib/documents/normalize';
 import { checkPdfFile, checkPdfRange, pdfRangeSchema } from '@/lib/validation/requests';
 import { describeError, logStage } from '@/lib/log';
+import { protectApiRequest } from '@/lib/rateLimit';
+import { MAX_PDF_BYTES } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  const limited = await protectApiRequest(request, 'extract-pdf', 10, 60_000, MAX_PDF_BYTES + 1024 * 1024);
+  if (limited) return limited;
   try {
     const form = await request.formData();
     const file = form.get('file');

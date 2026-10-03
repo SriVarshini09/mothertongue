@@ -15,9 +15,16 @@ import { normalizeExtractedText } from '@/lib/documents/normalize';
 export class LocalExtractionEngine implements ExtractionEngine {
   readonly kind = 'local' as const;
 
-  async extractImages(files: File[], opts?: { language?: string }): Promise<ImageExtractionResult> {
+  async extractImages(files: File[], opts?: { sourceLanguage?: string }): Promise<ImageExtractionResult> {
     const { ocrPrintedText } = await import('@/lib/offline/tesseractLocal');
-    const language = opts?.language ?? 'English';
+    const language = opts?.sourceLanguage?.trim();
+    if (!language || /^auto[- ]?detect/i.test(language)) {
+      throw new EngineUnavailableError(
+        'extraction',
+        'local',
+        'Choose the source language before using offline photo reading.'
+      );
+    }
     try {
       const pages: string[] = [];
       for (const file of files) {

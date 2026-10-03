@@ -1,4 +1,5 @@
 import type OpenAI from 'openai';
+import { ApiKeyMissingError } from '@/lib/ai/client';
 import type { DeliveryProfile } from '@/types/speech';
 import { chunkForSpeechSegments } from '@/lib/documents/chunk';
 import { generateSpeech } from '@/lib/ai/speech';
@@ -18,6 +19,13 @@ import { generateSpeech } from '@/lib/ai/speech';
  */
 
 export type SpeechProviderId = 'openai' | 'sarvam';
+
+export class SpeechProviderUnavailableError extends Error {
+  constructor(provider: SpeechProviderId) {
+    super(`${provider[0].toUpperCase()}${provider.slice(1)} speech service is temporarily unavailable.`);
+    this.name = 'SpeechProviderUnavailableError';
+  }
+}
 
 export const SARVAM_MODEL = 'bulbul:v3';
 export const SARVAM_MAX_CHARS = 2400;
@@ -109,7 +117,7 @@ async function generateSarvamSpeech(args: {
 }
 
 export async function synthesizeSpeech(
-  openai: OpenAI,
+  openai: OpenAI | null,
   args: { text: string; language: string; profile: DeliveryProfile }
 ): Promise<{ audio: Uint8Array<ArrayBuffer>; provider: SpeechProviderId; contentType: string }> {
   const { provider, sarvamCode } = selectSpeechProvider(args.language);
@@ -123,8 +131,10 @@ export async function synthesizeSpeech(
       return { audio, provider, contentType: 'audio/mpeg' };
     } catch {
       // A single provider must never break speech: fall through to OpenAI.
+      if (!openai) throw new SpeechProviderUnavailableError('sarvam');
     }
   }
+  if (!openai) throw new ApiKeyMissingError();
   const audio = await generateSpeech(openai, { text: args.text, ttsInstructions: args.profile.ttsInstructions });
   return { audio, provider: 'openai', contentType: 'audio/mpeg' };
 }

@@ -26,13 +26,8 @@ import AudioPlayer from '@/components/AudioPlayer';
 import HistoryDrawer, { HistoryItem } from '@/components/HistoryDrawer';
 import OfflineDrawer from '@/components/OfflineDrawer';
 import LiveCamera from '@/components/LiveCamera';
-import { chunkForSpeech } from '@/lib/chunks';
 import { languages } from '@/lib/languages';
-import {
-  audioCacheKey,
-  getCachedAudioUrl,
-  setCachedAudioUrl,
-} from '@/lib/cache/audio';
+import { releaseCachedAudioUrl } from '@/lib/cache/audio';
 import { MAX_IMAGES, MAX_IMAGE_BYTES } from '@/lib/validation';
 import { CloudTranslationEngine } from '@/lib/engines/translation/cloud';
 import { LocalTranslationEngine } from '@/lib/engines/translation/local';
@@ -40,6 +35,7 @@ import { CloudExtractionEngine } from '@/lib/engines/extraction/cloud';
 import { LocalExtractionEngine } from '@/lib/engines/extraction/local';
 import { EngineUnavailableError } from '@/lib/engines/capabilities';
 import { DeviceSpeechEngine } from '@/lib/engines/speech/local';
+import { CloudSpeechEngine } from '@/lib/engines/speech/cloud';
 import { resolveStage } from '@/lib/engines/router';
 import {
   checkReachability,
@@ -120,6 +116,7 @@ export default function Home() {
   const [sourceText, setSourceText] = useState('');
   const [sourceLabel, setSourceLabel] = useState('');
   const [target, setTarget] = useState('Telugu');
+  const [sourceLanguage, setSourceLanguage] = useState('Auto-detect');
   const [detected, setDetected] = useState('');
   const [translated, setTranslated] = useState('');
   const [busy, setBusy] = useState<
@@ -157,6 +154,7 @@ export default function Home() {
   const localTranslation = useRef(new LocalTranslationEngine());
   const cloudExtraction = useRef(new CloudExtractionEngine());
   const localExtraction = useRef(new LocalExtractionEngine());
+  const cloudSpeech = useRef(new CloudSpeechEngine());
   const deviceSpeechEngine = useRef<DeviceSpeechEngine | null>(null);
 
   const getDeviceSpeech = () => {
@@ -198,7 +196,7 @@ export default function Home() {
 
   useEffect(() => {
     return () => {
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      if (audioUrl) releaseCachedAudioUrl(audioUrl);
       images.forEach((i) => URL.revokeObjectURL(i.url));
       try {
         deviceSpeechEngine.current?.stop();
@@ -238,7 +236,7 @@ export default function Home() {
 
   const clearAudio = () => {
     if (audioRef.current) audioRef.current.pause();
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    if (audioUrl) releaseCachedAudioUrl(audioUrl);
     setAudioUrl('');
     stopDeviceSpeech();
     setSpeechEngineNote('');
@@ -370,7 +368,7 @@ export default function Home() {
       try {
         const result = await localExtraction.current.extractImages(
           images.map((i) => i.file),
-          { language: target }
+          { sourceLanguage }
         );
         setSourceText(result.text ?? '');
         setSourceLabel(
@@ -520,6 +518,7 @@ export default function Home() {
       try {
         const result = await localTranslation.current.translate({
           text: sourceText,
+          sourceLanguage,
           targetLanguage: target,
         });
         const out = result.translatedText ?? '';
@@ -540,6 +539,9 @@ export default function Home() {
         );
         setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
       } catch (e) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('[offline-translation]', e instanceof Error ? e.message : e);
+        }
         if (e instanceof EngineUnavailableError) {
           setError(
             `${e.message} Connect to the internet, or open Offline settings to see coming language packs.`
@@ -559,6 +561,7 @@ export default function Home() {
     try {
       const result = await cloudTranslation.current.translate({
         text: sourceText,
+        sourceLanguage,
         targetLanguage: target,
       });
       const out = result.translatedText ?? '';
@@ -663,67 +666,30 @@ export default function Home() {
       speakWithDevice();
       return;
     }
-    const chunks = chunkForSpeech(translated, 3500);
-    if (chunks.length > 8) {
-      setError('This translation is quite long for audio. Try a shorter passage for listening.');
-      return;
-    }
     setError('');
     setBusy('speech');
     try {
-      // Canonical text + language identify the audio: the delivery profile
-      // is a deterministic function of both, so the key stays valid.
-      const key = await audioCacheKey({ translatedText: translated, language: target });
-      const hit = getCachedAudioUrl(key);
-      if (hit) {
-        if (audioUrl) URL.revokeObjectURL(audioUrl);
-        setAudioUrl(hit);
-        setSpeechEngineNote('');
-        updateHistorySpeech('cloud');
-        setTimeout(() => void audioRef.current?.play().catch(() => {
-          setError('Audio is ready — tap Play to listen.');
-        }), 60);
-        return;
-      }
-      const buffers: ArrayBuffer[] = [];
-      for (let i = 0; i < chunks.length; i++) {
-        setSpeechLabel(
-          chunks.length > 1 ? `Preparing your audio… (${i + 1}/${chunks.length})` : 'Preparing your audio…'
-        );
-        // Reachability: avoid hanging on dead networks when AUTO.
-        if (mode !== 'offline' && !(await checkReachability())) {
-          throw new Error('offline-during-speech');
-        }
-        const res = await fetch('/api/speech', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: chunks[i], language: target }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || 'We could not prepare the audio.');
-        }
-        buffers.push(await res.arrayBuffer());
-      }
-      let total = 0;
-      buffers.forEach((b) => (total += b.byteLength));
-      const merged = new Uint8Array(total);
-      let offset = 0;
-      buffers.forEach((b) => {
-        merged.set(new Uint8Array(b), offset);
-        offset += b.byteLength;
+      const result = await cloudSpeech.current.synthesize({
+        text: translated,
+        language: target,
+        onProgress: (done, total) => {
+          setSpeechLabel(total > 1 ? `Preparing your audio… (${done + 1}/${total})` : 'Preparing your audio…');
+        },
+        beforeChunk: async () => {
+          // Reachability: avoid hanging on dead networks when AUTO.
+          if (mode !== 'offline' && !(await checkReachability())) {
+            throw new Error('offline-during-speech');
+          }
+        },
       });
-      const blob = new Blob([merged.buffer as ArrayBuffer], { type: 'audio/mpeg' });
-      const url = URL.createObjectURL(blob);
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
-      setCachedAudioUrl(await audioCacheKey({ translatedText: translated, language: target }), url);
-      setAudioUrl(url);
+      if (audioUrl && audioUrl !== result.url) releaseCachedAudioUrl(audioUrl);
+      setAudioUrl(result.url);
       setSpeechEngineNote('');
       updateHistorySpeech('cloud');
       setTimeout(async () => {
         try {
           if (audioRef.current) {
-            audioRef.current.src = url;
+            audioRef.current.src = result.url;
             await audioRef.current.play();
           }
         } catch {
@@ -1375,6 +1341,13 @@ export default function Home() {
               </div>
             )}
 
+            <LanguageSelector
+              value={sourceLanguage}
+              onChange={setSourceLanguage}
+              label="Source language"
+              allowAutoDetect
+              id="source-language-button"
+            />
             <LanguageSelector value={target} onChange={changeTarget} />
 
             <button

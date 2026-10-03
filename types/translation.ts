@@ -2,6 +2,7 @@
 
 export type TranslateRequest = {
   text: string;
+  sourceLanguage?: string;
   targetLanguage: string;
 };
 

@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Download, Trash2, X } from 'lucide-react';
+import { Download, Search, Star, Trash2, X } from 'lucide-react';
 import type { ConnectivityState } from '@/lib/offline/connectivity';
 import { MODE_DESCRIPTIONS, type EngineMode } from '@/lib/offline/mode';
 import {
   getPackStatus,
   type LanguagePackDef,
   type PackCapabilitySummary,
+  verifyStoredPack,
 } from '@/lib/offline/languagePacks';
 import {
   downloadPack,
@@ -41,6 +42,17 @@ type DlView =
   | { kind: 'confirm'; totalBytes: number }
   | { kind: 'busy'; loadedBytes: number; totalBytes: number; percent: number }
   | { kind: 'error'; message: string };
+
+const FAVORITES_KEY = 'mothertongue-offline-language-favorites-v1';
+
+function readFavorites(): string[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : [];
+  } catch {
+    return [];
+  }
+}
 
 async function deviceCheck(totalBytes: number): Promise<string | null> {
   try {
@@ -80,6 +92,9 @@ export default function OfflineDrawer({
 }) {
   const [manifests, setManifests] = useState<Record<string, PackManifest>>({});
   const [dl, setDl] = useState<Record<string, DlView>>({});
+  const [checking, setChecking] = useState<Record<string, boolean>>({});
+  const [packSearch, setPackSearch] = useState('');
+  const [favorites, setFavorites] = useState<string[]>(readFavorites);
   const aborts = useRef<Record<string, AbortController>>({});
 
   useEffect(() => {
@@ -87,12 +102,16 @@ export default function OfflineDrawer({
     let cancelled = false;
     (async () => {
       const next: Record<string, PackManifest> = {};
-      for (const p of packs) {
-        if (p.def.translation !== 'downloadable' || !p.def.manifestUrl) continue;
+      const urls = [...new Set(
+        packs
+          .filter((p) => p.def.translation === 'downloadable' && p.def.manifestUrl)
+          .map((p) => p.def.manifestUrl as string)
+      )];
+      for (const url of urls) {
         try {
-          const res = await fetch(p.def.manifestUrl, { cache: 'no-store' });
+          const res = await fetch(url, { cache: 'no-store' });
           const manifest = validateManifest(await res.json());
-          if (manifest) next[p.def.language] = manifest;
+          if (manifest) next[url] = manifest;
         } catch {
           /* size display degrades gracefully */
         }
@@ -106,10 +125,13 @@ export default function OfflineDrawer({
 
   if (!open) return null;
 
-  const statusOf = (def: LanguagePackDef) => dl[def.language]?.kind ?? getPackStatus(def.language, 'translation');
+  const manifestFor = (def: LanguagePackDef) => def.manifestUrl ? manifests[def.manifestUrl] : undefined;
+  const isRepresentative = (def: LanguagePackDef) => Boolean(
+    def.manifestUrl && packs.find((p) => p.def.manifestUrl === def.manifestUrl)?.def.language === def.language
+  );
 
   const startDownload = async (def: LanguagePackDef) => {
-    const manifest = manifests[def.language];
+    const manifest = manifestFor(def);
     if (!def.manifestUrl) return;
     if (!manifest) {
       setDl((d) => ({ ...d, [def.language]: { kind: 'error', message: 'Could not load download info. Reconnect and retry.' } }));
@@ -134,6 +156,7 @@ export default function OfflineDrawer({
         language: def.language,
         manifestUrl: def.manifestUrl,
         expectedVersion: def.version,
+        expectedManifestId: def.manifestId,
         signal: ctrl.signal,
         onProgress: (p: DownloadProgress) =>
           setDl((d) => ({ ...d, [def.language]: { kind: 'busy', ...p } })),
@@ -141,6 +164,7 @@ export default function OfflineDrawer({
       setDl((d) => ({ ...d, [def.language]: { kind: 'idle' } }));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'download-failed';
+      console.error('[offline-pack-download]', def.language, message);
       if (message === 'download-cancelled') {
         setDl((d) => ({ ...d, [def.language]: { kind: 'idle' } }));
       } else {
@@ -164,7 +188,48 @@ export default function OfflineDrawer({
     setDl((d) => ({ ...d, [def.language]: { kind: 'idle' } }));
   };
 
-  const downloaded = packs.filter((p) => getPackStatus(p.def.language, 'translation') === 'ready');
+  const verifyPack = async (def: LanguagePackDef) => {
+    setChecking((current) => ({ ...current, [def.language]: true }));
+    try {
+      const valid = await verifyStoredPack(def.language);
+      setDl((d) => valid
+        ? { ...d, [def.language]: { kind: 'idle' } }
+        : { ...d, [def.language]: { kind: 'error', message: 'Pack verification failed. Download it again.' } });
+    } finally {
+      setChecking((current) => ({ ...current, [def.language]: false }));
+    }
+  };
+
+  const downloaded = new Set(
+    packs
+      .filter((p) => getPackStatus(p.def.language, 'translation') === 'ready')
+      .map((p) => p.def.manifestUrl ?? p.def.id)
+  );
+  const normalizedPackSearch = packSearch.trim().toLocaleLowerCase();
+  const visiblePacks = normalizedPackSearch
+    ? packs.filter((p) => `${p.def.language} ${p.def.native}`.toLocaleLowerCase().includes(normalizedPackSearch))
+    : packs;
+  const orderedPacks = [...visiblePacks].sort(
+    (a, b) => Number(!favorites.includes(a.def.language)) - Number(!favorites.includes(b.def.language))
+  );
+  const sharedRepresentative = packs.find((p) => p.def.translation === 'downloadable' && p.def.manifestUrl);
+  const sharedControlHidden = Boolean(
+    sharedRepresentative && !visiblePacks.some((p) => isRepresentative(p.def))
+  );
+
+  const toggleFavorite = (language: string) => {
+    setFavorites((current) => {
+      const next = current.includes(language)
+        ? current.filter((value) => value !== language)
+        : [...current, language];
+      try {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+      } catch {
+        /* favorites are a convenience; offline translation does not depend on them */
+      }
+      return next;
+    });
+  };
 
   const renderTranslationRow = (def: LanguagePackDef) => {
     const view = dl[def.language] ?? { kind: 'idle' as const };
@@ -172,10 +237,25 @@ export default function OfflineDrawer({
     if (def.translation !== 'downloadable' || !def.manifestUrl) {
       return capabilityLine('Translation', 'Coming soon');
     }
+    if (!isRepresentative(def)) {
+      return capabilityLine(
+        'Translation',
+        stored === 'ready' ? '✓ Included offline' : 'Included in multilingual pack',
+        stored === 'ready' ? def.version : 'one shared download'
+      );
+    }
     if (stored === 'ready' && view.kind === 'idle') {
       return (
         <>
           {capabilityLine('Translation', 'Downloaded', def.version)}
+          <button
+            className="ghost-small pack-remove"
+            type="button"
+            disabled={checking[def.language]}
+            onClick={() => void verifyPack(def)}
+          >
+            {checking[def.language] ? 'Checking…' : 'Verify files'}
+          </button>
           <button className="ghost-small pack-remove" type="button" onClick={() => void remove(def)}>
             <Trash2 size={14} aria-hidden /> Remove
           </button>
@@ -203,7 +283,7 @@ export default function OfflineDrawer({
       return (
         <div className="dl-box">
           <p className="small" style={{ margin: '4px 0 8px' }}>
-            Download {def.language} for offline use? About <strong>{prettyBytes(view.totalBytes)}</strong>.
+            Download the multilingual translation pack for offline use? About <strong>{prettyBytes(view.totalBytes)}</strong>.
             First run loads the model and may take a minute.
           </p>
           <div className="cta-row" style={{ marginTop: 0 }}>
@@ -227,7 +307,7 @@ export default function OfflineDrawer({
         </div>
       );
     }
-    const manifest = manifests[def.language];
+    const manifest = manifestFor(def);
     const size = manifest ? prettyBytes(manifest.files.reduce((n, f) => n + f.bytes, 0)) : null;
     return (
       <div className="dl-box">
@@ -281,19 +361,43 @@ export default function OfflineDrawer({
         </div>
 
         <h3 className="drawer-sub">Offline languages</h3>
-        {connectivity === 'offline' && downloaded.length === 0 && (
+        <div className="lang-search pack-search">
+          <Search size={15} aria-hidden />
+          <input
+            aria-label="Filter offline languages"
+            placeholder="Search offline languages"
+            value={packSearch}
+            onChange={(e) => setPackSearch(e.target.value)}
+          />
+        </div>
+        {sharedControlHidden && sharedRepresentative && (
+          <div className="pack-shared-control">
+            <span className="small"><strong>Multilingual translation pack</strong> · shared by all languages</span>
+            {renderTranslationRow(sharedRepresentative.def)}
+          </div>
+        )}
+        {connectivity === 'offline' && downloaded.size === 0 && (
           <p className="muted small">
             You&apos;re offline. Downloaded languages would still work here — none are stored yet.
           </p>
         )}
         <div className="pack-list">
-          {packs.map(({ def, speechVoice, speech, ocr }) => (
+          {orderedPacks.map(({ def, speechVoice, speech, ocr }) => (
             <div className="pack-item" key={def.id}>
               <div className="pack-head">
                 <strong>
                   <span className="lang-native">{def.native}</span>{' '}
                   <span className="muted">{def.language}</span>
                 </strong>
+                <button
+                  className={`pack-favorite${favorites.includes(def.language) ? ' active' : ''}`}
+                  type="button"
+                  aria-label={`${favorites.includes(def.language) ? 'Remove' : 'Add'} ${def.language} ${favorites.includes(def.language) ? 'from' : 'to'} offline favorites`}
+                  aria-pressed={favorites.includes(def.language)}
+                  onClick={() => toggleFavorite(def.language)}
+                >
+                  <Star size={16} fill={favorites.includes(def.language) ? 'currentColor' : 'none'} aria-hidden />
+                </button>
               </div>
               {renderTranslationRow(def)}
               {speech === 'device-ready' && speechVoice
@@ -302,6 +406,7 @@ export default function OfflineDrawer({
               {capabilityLine('Text reading (OCR)', ocr === 'printed-offline' ? '✓ Printed text on-device' : 'Online for now')}
             </div>
           ))}
+          {visiblePacks.length === 0 && <p className="lang-empty">No offline language matches that search.</p>}
         </div>
         <p className="muted small pack-note">
           The app always asks before large downloads and shows real sizes. Device voices come

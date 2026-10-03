@@ -1,6 +1,7 @@
 import { EngineUnavailableError } from '../capabilities';
 import type { TranslationEngine, TranslationResult } from './types';
-import { getPackStatus } from '@/lib/offline/languagePacks';
+import { getPackStatus, verifyStoredPack } from '@/lib/offline/languagePacks';
+import { nllbSupports } from '@/lib/offline/nllbCore';
 
 /**
  * Local translator: on-device NLLB (transformers.js, Web Worker) using the
@@ -22,11 +23,33 @@ export class LocalTranslationEngine implements TranslationEngine {
         `${input.targetLanguage} isn't available offline yet.`
       );
     }
+    const sourceLanguage = input.sourceLanguage?.trim();
+    if (!sourceLanguage || /^auto[- ]?detect/i.test(sourceLanguage)) {
+      throw new EngineUnavailableError(
+        'translation',
+        'local',
+        'Choose the source language before using offline translation.'
+      );
+    }
+    if (!nllbSupports(sourceLanguage)) {
+      throw new EngineUnavailableError(
+        'translation',
+        'local',
+        `${sourceLanguage} is not supported by the installed offline translation model.`
+      );
+    }
+    if (!(await verifyStoredPack(input.targetLanguage))) {
+      throw new EngineUnavailableError(
+        'translation',
+        'local',
+        `${input.targetLanguage} offline files are missing. Download the language pack again.`
+      );
+    }
     const { translateOffline } = await import('@/lib/offline/nllbClient');
-    const translatedText = await translateOffline(input.text, input.targetLanguage);
+    const translatedText = await translateOffline(input.text, input.targetLanguage, sourceLanguage);
     return {
       translatedText,
-      sourceLanguage: input.sourceLanguage ?? 'Auto-detected',
+      sourceLanguage,
       targetLanguage: input.targetLanguage,
       engine: 'local',
     };

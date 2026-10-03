@@ -50,6 +50,14 @@ export function setCachedAudioUrl(key: string, url: string): void {
   }
 }
 
+/** Remove a URL from the cache before revoking it. Prevents stale revoked URLs. */
+export function releaseCachedAudioUrl(url: string): void {
+  for (const [key, cached] of urls) {
+    if (cached === url) urls.delete(key);
+  }
+  URL.revokeObjectURL(url);
+}
+
 export function clearAudioCache(): void {
   urls.forEach((url) => URL.revokeObjectURL(url));
   urls.clear();

@@ -1,22 +1,41 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { classifyServiceError, getOpenAI } from '@/lib/ai/client';
-import { analyzeDeliveryProfile } from '@/lib/ai/speechStyle';
-import { synthesizeSpeech } from '@/lib/ai/speechProviders';
+import { analyzeDeliveryProfile, defaultDeliveryProfile } from '@/lib/ai/speechStyle';
+import {
+  selectSpeechProvider,
+  SpeechProviderUnavailableError,
+  synthesizeSpeech,
+} from '@/lib/ai/speechProviders';
 import { speechSchema } from '@/lib/validation/requests';
 import { describeError, logStage } from '@/lib/log';
+import { protectApiRequest } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  const limited = await protectApiRequest(request, 'speech', 20, 60_000, 64 * 1024);
+  if (limited) return limited;
   try {
-    const { text, language } = speechSchema.parse(await request.json());
-    const openai = getOpenAI();
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Please send a valid JSON request.' }, { status: 400 });
+    }
+    const { text, language } = speechSchema.parse(rawBody);
+    const selected = selectSpeechProvider(language);
+    // Sarvam-supported languages can run with only SARVAM_API_KEY. OpenAI is
+    // still used for delivery analysis when available, but it is optional on
+    // the direct Sarvam path.
+    const openai = selected.provider === 'openai' || process.env.OPENAI_API_KEY ? getOpenAI() : null;
     // Delivery analysis reads a sample to choose HOW to speak.
     // The TTS call below always receives the exact, unmodified text.
     logStage('speechStyle.start', { chars: text.length, language });
-    const profile = await analyzeDeliveryProfile(openai, text, language);
+    const profile = openai
+      ? await analyzeDeliveryProfile(openai, text, language)
+      : defaultDeliveryProfile(language);
     logStage('speechStyle.success', {
       contentType: profile.contentType,
       pace: profile.pace,
@@ -48,8 +67,9 @@ export async function POST(request: Request) {
     }
     logStage('tts.error', { reason: describeError(error) });
     const serviceError = classifyServiceError(error, 'Speech');
+    const providerError = error instanceof SpeechProviderUnavailableError ? error.message : null;
     return NextResponse.json(
-      { error: serviceError ?? "Couldn't create audio. Try again." },
+      { error: serviceError ?? providerError ?? "Couldn't create audio. Try again." },
       { status: 500 }
     );
   }

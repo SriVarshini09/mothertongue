@@ -8,7 +8,7 @@ import type {
 export class CloudExtractionEngine implements ExtractionEngine {
   readonly kind = 'cloud' as const;
 
-  async extractImages(files: File[], _opts?: { language?: string }): Promise<ImageExtractionResult> {
+  async extractImages(files: File[], _opts?: { sourceLanguage?: string }): Promise<ImageExtractionResult> {
     void _opts;
     const body = new FormData();
     files.forEach((f) => body.append('images', f, f.name));

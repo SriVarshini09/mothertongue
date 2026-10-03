@@ -10,6 +10,7 @@ export class CloudSpeechEngine implements CloudSpeechEngineContract {
     text: string;
     language: string;
     onProgress?: (done: number, total: number) => void;
+    beforeChunk?: () => Promise<void>;
   }): Promise<CloudAudioResult> {
     const chunks = chunkForSpeech(input.text, 3500);
     if (chunks.length > 8) {
@@ -21,6 +22,7 @@ export class CloudSpeechEngine implements CloudSpeechEngineContract {
     const buffers: ArrayBuffer[] = [];
     for (let i = 0; i < chunks.length; i++) {
       input.onProgress?.(i, chunks.length);
+      await input.beforeChunk?.();
       const res = await fetch('/api/speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

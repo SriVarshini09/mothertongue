@@ -4,10 +4,19 @@ import { classifyServiceError, getOpenAI } from '@/lib/ai/client';
 import { translateText } from '@/lib/ai/translator';
 import { translateSchema } from '@/lib/validation/requests';
 import { describeError, logStage } from '@/lib/log';
+import { protectApiRequest } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
+  const limited = await protectApiRequest(request, 'translate', 30, 60_000, 512 * 1024);
+  if (limited) return limited;
   try {
-    const body = translateSchema.parse(await request.json());
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Please send a valid JSON request.' }, { status: 400 });
+    }
+    const body = translateSchema.parse(rawBody);
     logStage('translate.start', {
       chars: body.text.length,
       targetLanguage: body.targetLanguage,

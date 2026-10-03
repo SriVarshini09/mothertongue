@@ -306,8 +306,12 @@ textarea:focus, input:focus { border-color: #709580; box-shadow: 0 0 0 3px #315d
 .mode-option span { display: flex; flex-direction: column; gap: 2px; }
 .mode-option strong { font-size: 14px; }
 .pack-list { display: flex; flex-direction: column; gap: 10px; }
+.pack-search { border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; }
+.pack-shared-control { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; background: var(--pale); }
 .pack-item { border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
-.pack-head { margin-bottom: 8px; font-size: 14px; }
+.pack-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-size: 14px; }
+.pack-favorite { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 50%; background: #fff; color: var(--muted); cursor: pointer; }
+.pack-favorite:hover, .pack-favorite.active { color: #b37829; border-color: #d7b477; background: #fffaf0; }
 .pack-cap { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--muted); padding: 3px 0; }
 .pack-cap strong { font-weight: 600; color: var(--ink); text-align: right; }
 .pack-cap strong.ok { color: var(--green); }

@@ -23,9 +23,9 @@ export function tesseractSupports(language: string): boolean {
 }
 
 /** Extract printed text from an image Blob/File. Throws friendly errors. */
-export async function ocrPrintedText(image: Blob, targetLanguage: string): Promise<string> {
-  const code = TESSERACT_LANGS[targetLanguage];
-  if (!code) throw new Error(`ocr-language-unsupported: ${targetLanguage}`);
+export async function ocrPrintedText(image: Blob, sourceLanguage: string): Promise<string> {
+  const code = TESSERACT_LANGS[sourceLanguage];
+  if (!code) throw new Error(`ocr-language-unsupported: ${sourceLanguage}`);
   const { createWorker } = await import('tesseract.js');
   const worker: Awaited<ReturnType<typeof createWorker>> | null = await createWorker(
     code === 'eng' ? ['eng'] : ['eng', code]

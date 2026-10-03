@@ -12,6 +12,7 @@ export interface CloudSpeechEngine {
     text: string;
     language: string;
     onProgress?: (done: number, total: number) => void;
+    beforeChunk?: () => Promise<void>;
   }): Promise<CloudAudioResult>;
 }
 

@@ -26,7 +26,9 @@ No chatbot. No quizzes. No tutor. No study planner.
 ## 2. What we achieved (verified, not claimed)
 
 - **Working app** (Next.js + TypeScript): text / live-camera / upload → extraction →
-  editable review → translation (27 languages) → expressive audio → history.
+  editable review → translation across the curated 143-language catalog → expressive
+  audio → history. Offline translation currently has one verified shared pack for the
+  100-language catalog.
 - **Translation that translates**: hardened prompt architecture — delimited source
   text, stateless calls, translate-never-answer, pronoun/role fidelity with a
   verifier (14/14 anti-answering, 24–26/26 pronoun suite; the reported
@@ -35,7 +37,8 @@ No chatbot. No quizzes. No tutor. No study planner.
   offline OCR** (Tesseract, verified: English perfect, Telugu near-perfect).
 - **Two voice engines**: OpenAI TTS by default, Sarvam Bulbul voices optional.
 - **Offline architecture**: engine router (Auto/Online/Offline), PWA shell,
-  downloadable NLLB packs (Te/Ta/Hi, ~912 MB shared base, checksummed),
+  one downloadable NLLB pack for a 100-language catalog (~912 MB shared base,
+  checksummed),
   device TTS, zero-network Offline mode.
 - **Measurement culture**: 160-case benchmark harness with blinded LLM judge
   (production composite **92.2**), 30/30 offline unit tests, headless-browser
@@ -75,8 +78,9 @@ smartphones + expensive/variable data (offline matters), UPI micropayments work.
   marketplaces, or chatbots. We are "paste/photo → mother tongue → play."
 - **Fidelity as a feature.** Nobody markets "translates, never answers, preserves
   who-did-what-to-whom" — we measure it publicly with our harness.
-- **Indic-first, offline-first.** Telugu/Tamil/Hindi are our day-one citizens with
-  downloadable packs — not checkbox languages.
+- **Indic-first, offline-first.** Telugu/Tamil/Hindi lead a 100-language
+  downloadable catalog — not checkbox languages. Translation is offline after
+  the shared pack is installed; speech and OCR remain device/language-specific.
 - **Honest product.** No fake offline, no invented sizes, friendly errors, privacy
   by architecture. Trust is the moat with students and parents.
 - **Price.** Freemium/cents-per-page undercuts subscription TTS while our costs
@@ -87,12 +91,12 @@ What we will NOT do: chatbots, tutors, quizzes, classrooms, enterprise sales.
 ## 6. Next steps (ordered)
 
 1. **Real-device validation** (you, this week): phone camera flow, airplane-mode
-   offline E2E with downloaded Telugu pack + device voice, PWA install, Sarvam
+   offline E2E with the shared multilingual pack + device voice, PWA install, Sarvam
    voice A/B (needs `SARVAM_API_KEY`). Nothing ships on claims — only on this.
 2. **First users**: 10–20 Telugu/Tamil-medium students; watch them use it, record
    where they hesitate. Success = "understood a chapter without help."
 3. **Close the flaky 2**: pronoun-suite stragglers (larger verified model or second
-   checker) + Tamil/Hindi pack field testing.
+   checker) + multilingual pack field testing.
 4. **Distribution**: PWA link sharing (no app-store wait), campus ambassadors,
    study-YouTuber demos in Telugu/Tamil.
 5. **Monetization test**: free daily quota (e.g. 10 pages/day) + micropay packs via
