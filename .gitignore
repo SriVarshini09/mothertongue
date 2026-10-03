@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# Logs and OS files
+npm-debug.log*
+*.log
+.DS_Store
+Thumbs.db
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Generated benchmark results (reproducible via npm scripts)
+benchmarks/translation/results/
+benchmarks/translation/results-local/
+benchmarks/translation/results-probe/
+
+# Local Tesseract test artifacts (re-downloaded on demand)
+*.traineddata

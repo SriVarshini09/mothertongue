@@ -1,0 +1,45 @@
+{
+  "id": "nllb-base",
+  "version": "v1",
+  "model": "Xenova/nllb-200-distilled-600M",
+  "dtype": "q8",
+  "notes": "Quantized NLLB weights verified against the transformers.js v4 loader (dtype q8 maps to *_quantized.onnx). LFS oids are content sha256. Shared by all Indic/global offline packs.",
+  "files": [
+    {
+      "url": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/config.json",
+      "sha256": "52f035acb54ac80e5ef7fe78d6967f8ddf8e8799f078d1a92a2c8168d8ff4a20",
+      "bytes": 873,
+      "cacheApi": { "cache": "transformers-cache", "request": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/config.json" }
+    },
+    {
+      "url": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/generation_config.json",
+      "sha256": "1ce846259ae04c572ae1863e358534bbc376ff3d3f100b1494feda6200b51de8",
+      "bytes": 189,
+      "cacheApi": { "cache": "transformers-cache", "request": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/generation_config.json" }
+    },
+    {
+      "url": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/tokenizer_config.json",
+      "sha256": "ddf411c9f790d081e72de76bb8e8b714d74e160e61bc10c9bd8f56022dcd7fd7",
+      "bytes": 544,
+      "cacheApi": { "cache": "transformers-cache", "request": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/tokenizer_config.json" }
+    },
+    {
+      "url": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/tokenizer.json",
+      "sha256": "8ac789ad7dabea44d41537822d48c516ba358374c51813e2cba78c006e150c94",
+      "bytes": 17331224,
+      "cacheApi": { "cache": "transformers-cache", "request": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/tokenizer.json" }
+    },
+    {
+      "url": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/onnx/encoder_model_quantized.onnx",
+      "sha256": "5cde664eacba07a62f198857ec6c06e09572b1ebb77c8137f1fa99ac604a3a28",
+      "bytes": 419120483,
+      "cacheApi": { "cache": "transformers-cache", "request": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/onnx/encoder_model_quantized.onnx" }
+    },
+    {
+      "url": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/onnx/decoder_model_merged_quantized.onnx",
+      "sha256": "dd66608c2a4194e78f95548fa0e64f24302303698c5b09fa8e1f9e16ec00676b",
+      "bytes": 475505771,
+      "cacheApi": { "cache": "transformers-cache", "request": "https://huggingface.co/Xenova/nllb-200-distilled-600M/resolve/main/onnx/decoder_model_merged_quantized.onnx" }
+    }
+  ]
+}
