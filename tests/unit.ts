@@ -7,6 +7,7 @@ import { resolveStage } from '@/lib/engines/router';
 import { checkReachability, invalidateReachabilityProbe } from '@/lib/offline/connectivity';
 import { nllbSupports, nllbTranslate } from '@/lib/offline/nllbCore';
 import { ocrPrintedText } from '@/lib/offline/tesseractLocal';
+import { speechTagsFor } from '@/lib/engines/speech/local';
 import { sha256Hex } from '@/lib/offline/integrity';
 import {
   crossOriginResponse,
@@ -73,6 +74,14 @@ test('shared-offline-pack-exposes-the-multilingual-catalog', () => {
   const downloadable = PACK_DEFS.filter((def) => def.translation === 'downloadable');
   assert.equal(downloadable.length, NLLB_LANGUAGE_CATALOG.length);
   assert.equal(new Set(downloadable.map((def) => def.manifestUrl)).size, 1);
+});
+
+test('device-speech-tags-cover-the-expanded-offline-catalog', () => {
+  assert.deepEqual(speechTagsFor('French'), ['fr-FR', 'fr']);
+  assert.ok(speechTagsFor('Yiddish').includes('yi'));
+  assert.ok(speechTagsFor('Acehnese (Latin)').includes('ace'));
+  assert.ok(NLLB_LANGUAGE_CATALOG.every((language) => speechTagsFor(language.name).length > 0));
+  assert.deepEqual(speechTagsFor('Klingon'), []);
 });
 
 test('speech-profile-parser-clamps-and-falls-back-safely', () => {
