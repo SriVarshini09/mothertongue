@@ -127,6 +127,8 @@ textarea:focus, input:focus { border-color: #709580; box-shadow: 0 0 0 3px #315d
 .result { border: 1px solid transparent; border-radius: 14px; }
 .result.speaking { border-color: #cfe0d2; background: #f4f8f3; }
 .translation { white-space: pre-wrap; font: 20px/1.85 'Literata', 'Noto Serif Telugu', 'Noto Serif Tamil', 'Noto Serif Devanagari', 'Noto Naskh Arabic', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif KR', Georgia, serif; margin: 0 0 20px; overflow-wrap: anywhere; }
+.voice-style-control { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.voice-style-control select { min-height: 34px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); padding: 0 9px; font: inherit; font-weight: 600; }
 .audio-status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .audio-controls { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 14px; }
 .play { width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--green); color: white; display: grid; place-items: center; flex: none; }

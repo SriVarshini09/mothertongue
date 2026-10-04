@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     } catch {
       return NextResponse.json({ error: 'Please send a valid JSON request.' }, { status: 400 });
     }
-    const { text, language } = speechSchema.parse(rawBody);
+    const { text, language, emotion } = speechSchema.parse(rawBody);
     const selected = selectSpeechProvider(language);
     // Sarvam-supported languages can run with only SARVAM_API_KEY. OpenAI is
     // still used for delivery analysis when available, but it is optional on
@@ -32,15 +32,16 @@ export async function POST(request: Request) {
     const openai = selected.provider === 'openai' || process.env.OPENAI_API_KEY ? getOpenAI() : null;
     // Delivery analysis reads a sample to choose HOW to speak.
     // The TTS call below always receives the exact, unmodified text.
-    logStage('speechStyle.start', { chars: text.length, language });
+    logStage('speechStyle.start', { chars: text.length, language, emotion });
     const profile = openai
-      ? await analyzeDeliveryProfile(openai, text, language)
-      : defaultDeliveryProfile(language);
+      ? await analyzeDeliveryProfile(openai, text, language, emotion)
+      : defaultDeliveryProfile(language, emotion);
     logStage('speechStyle.success', {
       contentType: profile.contentType,
       pace: profile.pace,
       energy: profile.energy,
       expressiveness: profile.expressiveness,
+      emotion,
     });
     logStage('tts.start', { chars: text.length, language });
     const started = Date.now();

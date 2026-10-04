@@ -2,6 +2,8 @@
 
 import { RefObject, useEffect, useState } from 'react';
 import { Copy, Loader2, Pause, Play, RotateCcw, RefreshCw, X } from 'lucide-react';
+import { VOICE_EMOTIONS, type VoiceEmotion } from '@/types/speech';
+import { VOICE_EMOTION_PRESETS } from '@/lib/speech/emotions';
 
 const SPEEDS = [0.75, 1, 1.25, 1.5, 1.75, 2];
 
@@ -15,6 +17,8 @@ export default function AudioPlayer({
   onRegenerate,
   onClear,
   translated,
+  emotion,
+  onEmotionChange,
 }: {
   audioRef: RefObject<HTMLAudioElement>;
   audioUrl: string;
@@ -25,6 +29,8 @@ export default function AudioPlayer({
   onRegenerate: () => void;
   onClear: () => void;
   translated: string;
+  emotion: VoiceEmotion;
+  onEmotionChange: (emotion: VoiceEmotion) => void;
 }) {
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -108,6 +114,21 @@ export default function AudioPlayer({
         {translated}
       </p>
       <audio ref={audioRef} src={audioUrl || undefined} preload="metadata" />
+      <div className="voice-style-control">
+        <label htmlFor="voice-emotion">Voice feeling</label>
+        <select
+          id="voice-emotion"
+          aria-label="Voice feeling"
+          value={emotion}
+          onChange={(event) => onEmotionChange(event.target.value as VoiceEmotion)}
+        >
+          {VOICE_EMOTIONS.map((value) => (
+            <option key={value} value={value}>
+              {value === 'auto' ? 'Automatic · match the text' : `${VOICE_EMOTION_PRESETS[value].label} · ${VOICE_EMOTION_PRESETS[value].description}`}
+            </option>
+          ))}
+        </select>
+      </div>
       {preparing && (
         <div className="audio-status" role="status">
           <Loader2 size={16} className="spin" /> {prepareLabel || 'Preparing your audio…'}

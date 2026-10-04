@@ -1,5 +1,6 @@
 import { chunkForSpeech } from '@/lib/chunks';
 import { audioCacheKey, getCachedAudioUrl, setCachedAudioUrl } from '@/lib/cache/audio';
+import type { VoiceEmotion } from '@/types/speech';
 import type { CloudSpeechEngine as CloudSpeechEngineContract, CloudAudioResult } from './types';
 
 /** Cloud speech: chunked POST /api/speech merged into one session blob. */
@@ -9,6 +10,7 @@ export class CloudSpeechEngine implements CloudSpeechEngineContract {
   async synthesize(input: {
     text: string;
     language: string;
+    emotion?: VoiceEmotion;
     onProgress?: (done: number, total: number) => void;
     beforeChunk?: () => Promise<void>;
   }): Promise<CloudAudioResult> {
@@ -16,7 +18,7 @@ export class CloudSpeechEngine implements CloudSpeechEngineContract {
     if (chunks.length > 8) {
       throw new Error('This translation is quite long for audio. Try a shorter passage for listening.');
     }
-    const key = await audioCacheKey({ translatedText: input.text, language: input.language });
+    const key = await audioCacheKey({ translatedText: input.text, language: input.language, emotion: input.emotion });
     const hit = getCachedAudioUrl(key);
     if (hit) return { url: hit, engine: 'cloud' };
     const buffers: ArrayBuffer[] = [];
@@ -26,7 +28,7 @@ export class CloudSpeechEngine implements CloudSpeechEngineContract {
       const res = await fetch('/api/speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: chunks[i], language: input.language }),
+        body: JSON.stringify({ text: chunks[i], language: input.language, emotion: input.emotion ?? 'auto' }),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;

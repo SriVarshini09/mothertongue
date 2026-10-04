@@ -11,6 +11,7 @@ export interface CloudSpeechEngine {
   synthesize(input: {
     text: string;
     language: string;
+    emotion?: import('@/types/speech').VoiceEmotion;
     onProgress?: (done: number, total: number) => void;
     beforeChunk?: () => Promise<void>;
   }): Promise<CloudAudioResult>;

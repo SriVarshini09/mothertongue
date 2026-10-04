@@ -44,6 +44,7 @@ import {
 } from '@/lib/offline/connectivity';
 import { loadMode, saveMode, type EngineMode } from '@/lib/offline/mode';
 import { packCapabilities, type PackCapabilitySummary } from '@/lib/offline/languagePacks';
+import type { VoiceEmotion } from '@/types/speech';
 
 type Tab = 'text' | 'camera' | 'upload';
 
@@ -141,6 +142,7 @@ export default function Home() {
   const [packs, setPacks] = useState<PackCapabilitySummary[]>([]);
   const [deviceSpeech, setDeviceSpeech] = useState<'idle' | 'speaking' | 'paused'>('idle');
   const [speechEngineNote, setSpeechEngineNote] = useState('');
+  const [voiceEmotion, setVoiceEmotion] = useState<VoiceEmotion>('auto');
   const [busyNote, setBusyNote] = useState('');
   const connectivity: ConnectivityState = useConnectivity();
 
@@ -240,6 +242,11 @@ export default function Home() {
     setAudioUrl('');
     stopDeviceSpeech();
     setSpeechEngineNote('');
+  };
+
+  const changeVoiceEmotion = (emotion: VoiceEmotion) => {
+    clearAudio();
+    setVoiceEmotion(emotion);
   };
 
   const openOffline = () => {
@@ -620,6 +627,7 @@ export default function Home() {
     engine.speak({
       text: translated,
       language: target,
+      emotion: voiceEmotion,
       onEnd: () => setDeviceSpeech('idle'),
       onError: (message) => {
         setDeviceSpeech('idle');
@@ -672,6 +680,7 @@ export default function Home() {
       const result = await cloudSpeech.current.synthesize({
         text: translated,
         language: target,
+        emotion: voiceEmotion,
         onProgress: (done, total) => {
           setSpeechLabel(total > 1 ? `Preparing your audio… (${done + 1}/${total})` : 'Preparing your audio…');
         },
@@ -1393,6 +1402,8 @@ export default function Home() {
                   onRegenerate={() => void translate()}
                   onClear={clearTranslation}
                   translated={translated}
+                  emotion={voiceEmotion}
+                  onEmotionChange={changeVoiceEmotion}
                 />
               </div>
               {deviceSpeech !== 'idle' && (

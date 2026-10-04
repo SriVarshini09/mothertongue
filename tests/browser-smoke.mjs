@@ -33,6 +33,9 @@ await page.waitForSelector('.translation', { timeout: 90000 });
 const out = await page.locator('.translation').textContent();
 check('browser-translation-telugu', /నాకు|నన్ను/.test(out || ''), (out || '').slice(0, 80));
 check('browser-no-you-swap', !/నీకు|మీకు/.test(out || ''), (out || '').slice(0, 80));
+check('voice-feeling-control', await page.getByLabel('Voice feeling').count() === 1);
+await page.getByLabel('Voice feeling').selectOption('encouraging');
+check('voice-feeling-selects-emotion', await page.getByLabel('Voice feeling').inputValue() === 'encouraging');
 check('still-no-errors', errors.length === 0, errors.join(' | ').slice(0, 400));
 
 await browser.close();

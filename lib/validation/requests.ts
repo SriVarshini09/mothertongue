@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { VOICE_EMOTIONS } from '@/types/speech';
 import {
   IMAGE_MIME_TYPES,
   MAX_IMAGES,
@@ -56,6 +57,7 @@ export const translateSchema = z.object({
 export const speechSchema = z.object({
   text: z.string().trim().min(1).max(4000),
   language: z.string().trim().min(2).max(80),
+  emotion: z.enum(VOICE_EMOTIONS).default('auto'),
 });
 
 export const pdfRangeSchema = z.object({

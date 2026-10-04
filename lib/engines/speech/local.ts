@@ -1,6 +1,8 @@
 import type { DeviceSpeechEngine as DeviceSpeechEngineContract, DeviceVoiceInfo } from './types';
 import { classifyDelivery } from '@/lib/offline/deliveryHeuristics';
 import { NLLB_LANGUAGE_CATALOG } from '@/lib/offline/nllbLanguages';
+import type { VoiceEmotion } from '@/types/speech';
+import { voiceEmotionPreset } from '@/lib/speech/emotions';
 
 /** BCP-47 tags tried per MotherTongue language, best first. */
 const VOICE_TAGS: Record<string, string[]> = {
@@ -96,6 +98,7 @@ export class DeviceSpeechEngine implements DeviceSpeechEngineContract {
   speak(input: {
     text: string;
     language: string;
+    emotion?: VoiceEmotion;
     rate?: number;
     pitch?: number;
     onEnd?: () => void;
@@ -108,6 +111,7 @@ export class DeviceSpeechEngine implements DeviceSpeechEngineContract {
     }
     s.cancel();
     const style = classifyDelivery(input.text);
+    const emotion = voiceEmotionPreset(input.emotion ?? 'auto');
     const utter = new SpeechSynthesisUtterance(input.text);
     const [voice] = deviceVoicesFor(input.language);
     if (voice) {
@@ -115,8 +119,8 @@ export class DeviceSpeechEngine implements DeviceSpeechEngineContract {
       if (match) utter.voice = match;
       utter.lang = voice.lang;
     }
-    utter.rate = input.rate ?? style.rate;
-    utter.pitch = input.pitch ?? 1;
+    utter.rate = input.rate ?? Math.min(2, Math.max(0.5, style.rate * (emotion?.deviceRate ?? 1)));
+    utter.pitch = input.pitch ?? emotion?.devicePitch ?? 1;
     utter.onend = () => {
       this.current = null;
       input.onEnd?.();

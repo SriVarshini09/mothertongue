@@ -20,8 +20,11 @@ import {
   SpeechProviderUnavailableError,
   synthesizeSpeech,
 } from '@/lib/ai/speechProviders';
-import { defaultDeliveryProfile } from '@/lib/ai/speechStyle';
+import { applyVoiceEmotion, defaultDeliveryProfile } from '@/lib/ai/speechStyle';
+import { audioCacheKey } from '@/lib/cache/audio';
+import { voiceEmotionPreset } from '@/lib/speech/emotions';
 import { validateManifest } from '@/lib/offline/downloadManager';
+import { speechSchema } from '@/lib/validation/requests';
 import { NLLB_LANGUAGE_CATALOG, NLLB_OFFICIAL_LANGUAGE_COUNT } from '@/lib/offline/nllbLanguages';
 import { PACK_DEFS } from '@/lib/offline/languagePacks';
 import {
@@ -82,6 +85,22 @@ test('device-speech-tags-cover-the-expanded-offline-catalog', () => {
   assert.ok(speechTagsFor('Acehnese (Latin)').includes('ace'));
   assert.ok(NLLB_LANGUAGE_CATALOG.every((language) => speechTagsFor(language.name).length > 0));
   assert.deepEqual(speechTagsFor('Klingon'), []);
+});
+
+test('voice-emotion-presets-change-delivery-only', () => {
+  const calm = applyVoiceEmotion(defaultDeliveryProfile('English'), 'English', 'calm');
+  const excited = applyVoiceEmotion(defaultDeliveryProfile('English'), 'English', 'excited');
+  assert.equal(calm.pace, 'slightly-slow');
+  assert.equal(excited.energy, 'high');
+  assert.match(calm.ttsInstructions, /do not add, remove, paraphrase, translate, or change any words/);
+  assert.notEqual(calm.ttsInstructions, excited.ttsInstructions);
+  assert.equal(voiceEmotionPreset('auto'), null);
+});
+
+test('speech-request-validates-emotion', () => {
+  assert.equal(speechSchema.parse({ text: 'Hello', language: 'English', emotion: 'excited' }).emotion, 'excited');
+  assert.equal(speechSchema.parse({ text: 'Hello', language: 'English' }).emotion, 'auto');
+  assert.throws(() => speechSchema.parse({ text: 'Hello', language: 'English', emotion: 'angry' }));
 });
 
 test('speech-profile-parser-clamps-and-falls-back-safely', () => {
@@ -229,6 +248,14 @@ async function runAsyncTests(): Promise<void> {
       await sha256Hex(new Blob(['hello'])),
       '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
     );
+  });
+
+  await testAsync('speech-cache-separates-emotional-variants', async () => {
+    const common = { translatedText: 'Hello there.', language: 'English' };
+    const calm = await audioCacheKey({ ...common, emotion: 'calm' });
+    const excited = await audioCacheKey({ ...common, emotion: 'excited' });
+    assert.notEqual(calm, excited);
+    assert.equal(await audioCacheKey(common), await audioCacheKey({ ...common, emotion: 'auto' }));
   });
 
   await testAsync('reachability-reprobes-after-invalidation', async () => {

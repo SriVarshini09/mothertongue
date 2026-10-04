@@ -20,8 +20,22 @@ export type DeliveryProfile = {
   ttsInstructions: string;
 };
 
+export const VOICE_EMOTIONS = [
+  'auto',
+  'warm',
+  'calm',
+  'encouraging',
+  'excited',
+  'empathetic',
+  'confident',
+  'storytelling',
+] as const;
+
+export type VoiceEmotion = (typeof VOICE_EMOTIONS)[number];
+
 export type SpeechRequest = {
   /** Must be the exact canonical translatedText. */
   text: string;
   language: string;
+  emotion?: VoiceEmotion;
 };

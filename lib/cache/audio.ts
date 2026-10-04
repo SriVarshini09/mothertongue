@@ -1,19 +1,20 @@
 import { SPEECH_MODEL, SPEECH_VOICE } from '@/lib/ai/speech';
+import type { VoiceEmotion } from '@/types/speech';
 
 /**
  * Session audio cache. Key covers translatedText + language + voice +
- * model. The delivery profile is a deterministic function of (text,
- * language), so it needs no separate key component — identical inputs
- * always yield identical styles and identical audio.
+ * model and selected emotion. Different emotions must never reuse the same
+ * audio object URL.
  */
 
 export type AudioCacheKeyInput = {
   translatedText: string;
   language: string;
+  emotion?: VoiceEmotion;
 };
 
-export async function audioCacheKey({ translatedText, language }: AudioCacheKeyInput): Promise<string> {
-  const material = [translatedText, language, SPEECH_VOICE, SPEECH_MODEL].join('\u0000');
+export async function audioCacheKey({ translatedText, language, emotion = 'auto' }: AudioCacheKeyInput): Promise<string> {
+  const material = [translatedText, language, emotion, SPEECH_VOICE, SPEECH_MODEL].join('\u0000');
   if (typeof crypto !== 'undefined' && 'subtle' in crypto) {
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(material));
     return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
