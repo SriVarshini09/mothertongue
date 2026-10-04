@@ -3,7 +3,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { NLLB_DTYPE, NLLB_MODEL_ID } from '@/lib/offline/nllbCore';
 import { validateManifest } from '@/lib/offline/downloadManager';
-import { NLLB_LANGUAGE_CATALOG } from '@/lib/offline/nllbLanguages';
+import { NLLB_LANGUAGE_CATALOG, NLLB_OFFICIAL_LANGUAGE_COUNT } from '@/lib/offline/nllbLanguages';
 import { PACK_DEFS } from '@/lib/offline/languagePacks';
 
 const root = process.cwd();
@@ -38,7 +38,9 @@ assert.match(worker, /url\.pathname\.startsWith\('\/api\/'\)/, 'service worker m
 assert.match(worker, /transformers-cache/, 'service worker must serve the model cache');
 assert.match(worker, /offline-url\//, 'service worker must support IndexedDB model fallback');
 
-assert.ok(NLLB_LANGUAGE_CATALOG.length >= 100, 'offline catalog unexpectedly shrank');
+assert.equal(NLLB_LANGUAGE_CATALOG.length, NLLB_OFFICIAL_LANGUAGE_COUNT, 'offline catalog count drifted');
+assert.equal(NLLB_LANGUAGE_CATALOG.length, 202, 'official NLLB catalog should contain 202 entries');
+assert.equal(new Set(NLLB_LANGUAGE_CATALOG.map((language) => language.code)).size, NLLB_LANGUAGE_CATALOG.length);
 assert.equal(new Set(PACK_DEFS.map((def) => def.id)).size, PACK_DEFS.length);
 assert.ok(PACK_DEFS.every((def) => def.translation === 'downloadable' && def.manifestId === manifest.id));
 assert.equal(new Set(PACK_DEFS.map((def) => def.manifestUrl)).size, 1);

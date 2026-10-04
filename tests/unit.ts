@@ -21,7 +21,7 @@ import {
 } from '@/lib/ai/speechProviders';
 import { defaultDeliveryProfile } from '@/lib/ai/speechStyle';
 import { validateManifest } from '@/lib/offline/downloadManager';
-import { NLLB_LANGUAGE_CATALOG } from '@/lib/offline/nllbLanguages';
+import { NLLB_LANGUAGE_CATALOG, NLLB_OFFICIAL_LANGUAGE_COUNT } from '@/lib/offline/nllbLanguages';
 import { PACK_DEFS } from '@/lib/offline/languagePacks';
 import {
   modelFileKey,
@@ -58,14 +58,18 @@ test('source-language-contract-is-explicit', () => {
 });
 
 test('shared-offline-pack-exposes-the-multilingual-catalog', () => {
-  assert.ok(NLLB_LANGUAGE_CATALOG.length >= 90);
+  assert.equal(NLLB_LANGUAGE_CATALOG.length, NLLB_OFFICIAL_LANGUAGE_COUNT);
+  assert.equal(NLLB_LANGUAGE_CATALOG.length, 202);
   assert.equal(new Set(NLLB_LANGUAGE_CATALOG.map((language) => language.name)).size, NLLB_LANGUAGE_CATALOG.length);
+  assert.equal(new Set(NLLB_LANGUAGE_CATALOG.map((language) => language.code)).size, NLLB_LANGUAGE_CATALOG.length);
   for (const language of NLLB_LANGUAGE_CATALOG) {
     assert.match(language.code, /^[a-z]{3}_[A-Za-z]{4}$/);
   }
   assert.equal(nllbSupports('Kannada'), true);
   assert.equal(nllbSupports('French'), true);
   assert.equal(nllbSupports('Chinese (Traditional)'), true);
+  assert.equal(nllbSupports('Yiddish'), true);
+  assert.equal(nllbSupports('Tamasheq (Tifinagh)'), true);
   const downloadable = PACK_DEFS.filter((def) => def.translation === 'downloadable');
   assert.equal(downloadable.length, NLLB_LANGUAGE_CATALOG.length);
   assert.equal(new Set(downloadable.map((def) => def.manifestUrl)).size, 1);

@@ -28,7 +28,7 @@ No chatbot. No quizzes. No tutor. No study planner.
 - **Working app** (Next.js + TypeScript): text / live-camera / upload → extraction →
   editable review → translation across the curated 143-language catalog → expressive
   audio → history. Offline translation currently has one verified shared pack for the
-  100-language catalog.
+  full 202-entry NLLB/FLORES catalog.
 - **Translation that translates**: hardened prompt architecture — delimited source
   text, stateless calls, translate-never-answer, pronoun/role fidelity with a
   verifier (14/14 anti-answering, 24–26/26 pronoun suite; the reported
@@ -37,7 +37,7 @@ No chatbot. No quizzes. No tutor. No study planner.
   offline OCR** (Tesseract, verified: English perfect, Telugu near-perfect).
 - **Two voice engines**: OpenAI TTS by default, Sarvam Bulbul voices optional.
 - **Offline architecture**: engine router (Auto/Online/Offline), PWA shell,
-  one downloadable NLLB pack for a 100-language catalog (~912 MB shared base,
+  one downloadable NLLB pack for the 202-entry catalog (~912 MB shared base,
   checksummed),
   device TTS, zero-network Offline mode.
 - **Measurement culture**: 160-case benchmark harness with blinded LLM judge
@@ -78,7 +78,7 @@ smartphones + expensive/variable data (offline matters), UPI micropayments work.
   marketplaces, or chatbots. We are "paste/photo → mother tongue → play."
 - **Fidelity as a feature.** Nobody markets "translates, never answers, preserves
   who-did-what-to-whom" — we measure it publicly with our harness.
-- **Indic-first, offline-first.** Telugu/Tamil/Hindi lead a 100-language
+- **Indic-first, offline-first.** Telugu/Tamil/Hindi lead a 202-entry
   downloadable catalog — not checkbox languages. Translation is offline after
   the shared pack is installed; speech and OCR remain device/language-specific.
 - **Honest product.** No fake offline, no invented sizes, friendly errors, privacy

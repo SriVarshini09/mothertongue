@@ -1,10 +1,11 @@
 /**
- * Product-facing subset of the official NLLB/FLORES language inventory.
+ * Product-facing catalog from the official NLLB/FLORES tokenizer inventory.
  *
- * One downloaded NLLB model can translate between every entry here. The
- * catalog is intentionally curated instead of exposing every research
- * language variant in the settings drawer; quality and tokenizer coverage
- * still vary by language and direction.
+ * One downloaded NLLB model can translate between every entry here. Coverage
+ * and quality still vary by language and direction, so the UI describes this
+ * as broad offline utility rather than equal quality for every language.
+ * Keep codes aligned with:
+ * https://github.com/huggingface/transformers/blob/main/src/transformers/models/nllb/tokenization_nllb.py
  */
 export type NllbLanguage = {
   name: string;
@@ -123,7 +124,115 @@ export const NLLB_LANGUAGE_CATALOG: NllbLanguage[] = [
   { name: 'Quechua', native: 'Runasimi', code: 'quy_Latn' },
   { name: 'Guarani', native: "Avañe'ẽ", code: 'grn_Latn' },
   { name: 'Esperanto', native: 'Esperanto', code: 'epo_Latn' },
+
+  // Additional official NLLB/FLORES entries. These are intentionally kept in
+  // the same catalog so every downloaded language shares one verified model.
+  { name: 'Acehnese (Arabic)', native: 'بهاس اچيه', code: 'ace_Arab' },
+  { name: 'Acehnese (Latin)', native: 'Bahsa Acèh', code: 'ace_Latn' },
+  { name: 'Mesopotamian Arabic', native: 'العربية العراقية', code: 'acm_Arab' },
+  { name: 'Taʿizzi-Adeni Arabic', native: 'العربية العدنية', code: 'acq_Arab' },
+  { name: 'Tunisian Arabic', native: 'العربية التونسية', code: 'aeb_Arab' },
+  { name: 'South Levantine Arabic', native: 'العربية الشامية', code: 'ajp_Arab' },
+  { name: 'North Levantine Arabic', native: 'العربية الشامية', code: 'apc_Arab' },
+  { name: 'Najdi Arabic', native: 'العربية النجدية', code: 'ars_Arab' },
+  { name: 'Moroccan Arabic', native: 'الدارجة', code: 'ary_Arab' },
+  { name: 'Egyptian Arabic', native: 'العربية المصرية', code: 'arz_Arab' },
+  { name: 'Asturian', native: 'Asturianu', code: 'ast_Latn' },
+  { name: 'Awadhi', native: 'अवधी', code: 'awa_Deva' },
+  { name: 'Aymara', native: 'Aymar aru', code: 'ayr_Latn' },
+  { name: 'North Azerbaijani (Arabic)', native: 'آذری', code: 'azb_Arab' },
+  { name: 'Bashkir', native: 'Башҡортса', code: 'bak_Cyrl' },
+  { name: 'Bambara', native: 'Bamanankan', code: 'bam_Latn' },
+  { name: 'Balinese', native: 'Basa Bali', code: 'ban_Latn' },
+  { name: 'Belarusian', native: 'Беларуская', code: 'bel_Cyrl' },
+  { name: 'Bemba', native: 'Ichibemba', code: 'bem_Latn' },
+  { name: 'Banjarese (Arabic)', native: 'بهاس بنجر', code: 'bjn_Arab' },
+  { name: 'Banjarese (Latin)', native: 'Bahasa Banjar', code: 'bjn_Latn' },
+  { name: 'Tibetan', native: 'བོད་སྐད་', code: 'bod_Tibt' },
+  { name: 'Bosnian', native: 'Bosanski', code: 'bos_Latn' },
+  { name: 'Buginese', native: 'ᨅᨔ ᨕᨘᨁᨗ', code: 'bug_Latn' },
+  { name: 'Chokwe', native: 'Cokwe', code: 'cjk_Latn' },
+  { name: 'Central Kurdish', native: 'کوردیی ناوەندی', code: 'ckb_Arab' },
+  { name: 'Crimean Tatar', native: 'Qırımtatarca', code: 'crh_Latn' },
+  { name: 'Dinka', native: 'Thuɔŋjäŋ', code: 'dik_Latn' },
+  { name: 'Dyula', native: 'Julakan', code: 'dyu_Latn' },
+  { name: 'Dzongkha', native: 'རྫོང་ཁ', code: 'dzo_Tibt' },
+  { name: 'Faroese', native: 'Føroyskt', code: 'fao_Latn' },
+  { name: 'Fijian', native: 'Vosa Vakaviti', code: 'fij_Latn' },
+  { name: 'Fon', native: 'Fɔngbè', code: 'fon_Latn' },
+  { name: 'Friulian', native: 'Furlan', code: 'fur_Latn' },
+  { name: 'Fulfulde', native: 'Fulfulde', code: 'fuv_Latn' },
+  { name: 'Scottish Gaelic', native: 'Gàidhlig', code: 'gla_Latn' },
+  { name: 'Galician', native: 'Galego', code: 'glg_Latn' },
+  { name: 'Chhattisgarhi', native: 'छत्तीसगढ़ी', code: 'hne_Deva' },
+  { name: 'Ilocano', native: 'Ilokano', code: 'ilo_Latn' },
+  { name: 'Icelandic', native: 'Íslenska', code: 'isl_Latn' },
+  { name: 'Kabyle', native: 'Taqbaylit', code: 'kab_Latn' },
+  { name: 'Kachin', native: 'Jinghpaw', code: 'kac_Latn' },
+  { name: 'Kamba', native: 'Kikamba', code: 'kam_Latn' },
+  { name: 'Kashmiri (Devanagari)', native: 'कॉशुर', code: 'kas_Deva' },
+  { name: 'Central Kanuri (Arabic)', native: 'کَنُوری', code: 'knc_Arab' },
+  { name: 'Central Kanuri (Latin)', native: 'Kanuri', code: 'knc_Latn' },
+  { name: 'Kabiyè', native: 'Kabyè', code: 'kbp_Latn' },
+  { name: 'Kabuverdianu', native: 'Kabuverdianu', code: 'kea_Latn' },
+  { name: 'Kikuyu', native: 'Gĩkũyũ', code: 'kik_Latn' },
+  { name: 'Kinyarwanda', native: 'Ikinyarwanda', code: 'kin_Latn' },
+  { name: 'Kimbundu', native: 'Kimbundu', code: 'kmb_Latn' },
+  { name: 'Kongo', native: 'Kikongo', code: 'kon_Latn' },
+  { name: 'Ligurian', native: 'Lìgure', code: 'lij_Latn' },
+  { name: 'Limburgish', native: 'Limburgs', code: 'lim_Latn' },
+  { name: 'Lingala', native: 'Lingála', code: 'lin_Latn' },
+  { name: 'Lombard', native: 'Lumbaart', code: 'lmo_Latn' },
+  { name: 'Latgalian', native: 'Latgalīšu volūda', code: 'ltg_Latn' },
+  { name: 'Luxembourgish', native: 'Lëtzebuergesch', code: 'ltz_Latn' },
+  { name: 'Luba-Katanga', native: 'Tshiluba', code: 'lua_Latn' },
+  { name: 'Luganda', native: 'Luganda', code: 'lug_Latn' },
+  { name: 'Luo', native: 'Dholuo', code: 'luo_Latn' },
+  { name: 'Mizo', native: 'Mizo ṭawng', code: 'lus_Latn' },
+  { name: 'Magahi', native: 'मगही', code: 'mag_Deva' },
+  { name: 'Minangkabau', native: 'Baso Minangkabau', code: 'min_Latn' },
+  { name: 'Plateau Malagasy', native: 'Malagasy', code: 'plt_Latn' },
+  { name: 'Maltese', native: 'Malti', code: 'mlt_Latn' },
+  { name: 'Meitei', native: 'মৈতৈ', code: 'mni_Beng' },
+  { name: 'Mossi', native: 'Mòoré', code: 'mos_Latn' },
+  { name: 'Māori', native: 'Te Reo Māori', code: 'mri_Latn' },
+  { name: 'Norwegian Nynorsk', native: 'Nynorsk', code: 'nno_Latn' },
+  { name: 'Northern Sotho', native: 'Sepedi', code: 'nso_Latn' },
+  { name: 'Nuer', native: 'Thok Naath', code: 'nus_Latn' },
+  { name: 'Nyanja', native: 'Chichewa', code: 'nya_Latn' },
+  { name: 'Occitan', native: 'Occitan', code: 'oci_Latn' },
+  { name: 'Pangasinan', native: 'Pangasinan', code: 'pag_Latn' },
+  { name: 'Papiamento', native: 'Papiamentu', code: 'pap_Latn' },
+  { name: 'Dari', native: 'دری', code: 'prs_Arab' },
+  { name: 'Rundi', native: 'Ikirundi', code: 'run_Latn' },
+  { name: 'Sango', native: 'Sängö', code: 'sag_Latn' },
+  { name: 'Sicilian', native: 'Sicilianu', code: 'scn_Latn' },
+  { name: 'Shan', native: 'ၽႃႇသႃႇတႆး', code: 'shn_Mymr' },
+  { name: 'Samoan', native: 'Gagana Samoa', code: 'smo_Latn' },
+  { name: 'Sindhi', native: 'سنڌي', code: 'snd_Arab' },
+  { name: 'Southern Sotho', native: 'Sesotho', code: 'sot_Latn' },
+  { name: 'Sardinian', native: 'Sardu', code: 'srd_Latn' },
+  { name: 'Swati', native: 'SiSwati', code: 'ssw_Latn' },
+  { name: 'Silesian', native: 'Ślōnskŏ gŏdka', code: 'szl_Latn' },
+  { name: 'Tatar', native: 'Татарча', code: 'tat_Cyrl' },
+  { name: 'Tigrinya', native: 'ትግርኛ', code: 'tir_Ethi' },
+  { name: 'Tamasheq (Latin)', native: 'ⵜⵎⴰⵣⵉⵖⵜ', code: 'taq_Latn' },
+  { name: 'Tamasheq (Tifinagh)', native: 'ⵜⵎⴰⵣⵉⵖⵜ', code: 'taq_Tfng' },
+  { name: 'Tok Pisin', native: 'Tok Pisin', code: 'tpi_Latn' },
+  { name: 'Tswana', native: 'Setswana', code: 'tsn_Latn' },
+  { name: 'Tsonga', native: 'Xitsonga', code: 'tso_Latn' },
+  { name: 'Turkmen', native: 'Türkmençe', code: 'tuk_Latn' },
+  { name: 'Tumbuka', native: 'Chitumbuka', code: 'tum_Latn' },
+  { name: 'Twi', native: 'Twi', code: 'twi_Latn' },
+  { name: 'Tamazight (Tifinagh)', native: 'ⵜⴰⵎⴰⵣⵉⵖⵜ', code: 'tzm_Tfng' },
+  { name: 'Umbundu', native: 'Umbundu', code: 'umb_Latn' },
+  { name: 'Venetian', native: 'Vèneto', code: 'vec_Latn' },
+  { name: 'Waray', native: 'Winaray', code: 'war_Latn' },
+  { name: 'Yiddish', native: 'ייִדיש', code: 'ydd_Hebr' },
 ];
+
+/** Number of language/script variants in the official NLLB inventory. */
+export const NLLB_OFFICIAL_LANGUAGE_COUNT = 202;
 
 export const NLLB_FLORES: Record<string, string> = {
   ...Object.fromEntries(NLLB_LANGUAGE_CATALOG.map((language) => [language.name, language.code])),

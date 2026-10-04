@@ -33,6 +33,7 @@ export type LanguagePackDef = {
   id: string;
   language: string;
   native: string;
+  popular?: boolean;
   languageCode: string;
   bcp47: string[];
   version: string;
@@ -80,6 +81,7 @@ export const PACK_DEFS: LanguagePackDef[] = NLLB_LANGUAGE_CATALOG.map((language)
   id: LEGACY_IDS[language.name] ?? `nllb-${language.code.toLowerCase()}`,
   language: language.name,
   native: language.native,
+  popular: language.popular,
   languageCode: language.code,
   bcp47: BCP47_OVERRIDES[language.name] ?? [language.code.slice(0, 3)],
   version: NLLB_VERSION,
