@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "benchmark:translation": "tsx benchmarks/translation/run.ts",
     "audit:voice-data": "tsx scripts/voice-data-audit.ts",
+    "voice:preprocess": "python scripts/voice_preprocess.py",
+    "voice:train": "python scripts/voice_train.py",
     "verify:offline-engines": "node benchmarks/offline/verify-browser.mjs",
     "verify:offline-release": "tsx tests/offline-release-check.ts",
     "test:browser": "node tests/browser-smoke.mjs",

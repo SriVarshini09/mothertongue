@@ -12,7 +12,9 @@ const args = new Set(process.argv.slice(2));
 const purposeArg = process.argv.find((arg) => arg.startsWith('--purpose='))?.split('=')[1] as VoiceDataPurpose | undefined;
 const purpose: VoiceDataPurpose = purposeArg === 'production' ? 'production' : 'research-benchmark';
 const checkFiles = args.has('--check-files');
-const manifestPath = path.join(root, 'data/voice/manifest.json');
+const manifestArg = process.argv.find((arg) => arg.startsWith('--manifest='))?.split('=').slice(1).join('=') ?? 'data/voice/manifest.json';
+const dataRootArg = process.argv.find((arg) => arg.startsWith('--data-root='))?.split('=').slice(1).join('=') ?? 'data/voice/raw';
+const manifestPath = path.resolve(root, manifestArg);
 const sourcesPath = path.join(root, 'data/voice/sources.json');
 
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as VoiceDataManifest;
@@ -20,9 +22,15 @@ const sources = (JSON.parse(readFileSync(sourcesPath, 'utf8')) as { sources: Voi
 const result = auditVoiceManifest(manifest, sources, { purpose });
 
 if (checkFiles) {
+  const dataRoot = path.resolve(root, dataRootArg);
   for (const clip of manifest.clips) {
-    const fullPath = path.resolve(root, 'data/voice/raw', clip.audioPath);
-    if (!existsSync(fullPath)) result.errors.push(`${clip.id}: missing local audio file ${clip.audioPath}`);
+    const fullPath = path.resolve(dataRoot, clip.audioPath);
+    const relative = path.relative(dataRoot, fullPath);
+    if (!relative || relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+      result.errors.push(`${clip.id}: audioPath escapes data root ${clip.audioPath}`);
+    } else if (!existsSync(fullPath)) {
+      result.errors.push(`${clip.id}: missing local audio file ${clip.audioPath}`);
+    }
   }
 }
 

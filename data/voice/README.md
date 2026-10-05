@@ -13,6 +13,21 @@ npm run audit:voice-data
 npm run audit:voice-data -- --purpose=production --check-files
 ```
 
+Preprocess a downloaded Voice Lab capture into 16 kHz mono WAV files. The output stays ignored under `data/voice/processed/`:
+
+```bash
+npm run voice:preprocess -- --manifest=data/voice/capture-manifest.json
+npm run audit:voice-data -- --manifest=data/voice/processed/manifest.json --data-root=data/voice --check-files
+```
+
+Train and evaluate the portable emotion-style baseline with speaker-independent holdout evaluation:
+
+```bash
+npm run voice:train -- --manifest=data/voice/processed/manifest.json
+```
+
+The trainer writes an ignored `emotion-model.json`, `evaluation.json`, `features.jsonl`, and `report.md`. It requires at least two speakers and two emotion labels; it never sends audio or features over the network.
+
 Each clip must include:
 
 - a source ID and exact source release recorded in the private project notes;
@@ -30,4 +45,4 @@ Recommended first experiment:
 1. Use Common Voice for multilingual pronunciation/ASR evaluation.
 2. Collect a small, directly consented set of the same sentences in English, Telugu, and Hindi across neutral, warm, calm, encouraging, excited, empathetic, confident, and storytelling delivery.
 3. Keep the first model focused on emotion/style classification and prosody recommendations. Do not clone a person’s voice without explicit voice-creation consent.
-4. Train outside the web app, then commit only model metadata, checksums, and evaluation reports—not raw voices or private consent records.
+4. Run the local preprocessing and baseline trainer, then commit only model metadata, checksums, and evaluation reports—not raw voices or private consent records.
