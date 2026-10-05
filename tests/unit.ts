@@ -24,6 +24,7 @@ import { applyVoiceEmotion, defaultDeliveryProfile } from '@/lib/ai/speechStyle'
 import { audioCacheKey } from '@/lib/cache/audio';
 import { voiceEmotionPreset } from '@/lib/speech/emotions';
 import { splitPracticeLines } from '@/lib/speech/practice';
+import { auditVoiceManifest } from '@/lib/speech/dataManifest';
 import { validateManifest } from '@/lib/offline/downloadManager';
 import { speechSchema } from '@/lib/validation/requests';
 import { NLLB_LANGUAGE_CATALOG, NLLB_OFFICIAL_LANGUAGE_COUNT } from '@/lib/offline/nllbLanguages';
@@ -110,6 +111,37 @@ test('voice-practice-splits-long-translation-into-repeatable-lines', () => {
   assert.equal(lines[1], 'Second question?');
   assert.ok(lines.length >= 3);
   assert.ok(lines.every((line) => line.length <= 180));
+});
+
+test('voice-data-audit-blocks-restricted-production-sources', () => {
+  const result = auditVoiceManifest({
+    version: 1,
+    purpose: 'research-benchmark',
+    sampleRateHz: 16000,
+    channels: 1,
+    clips: [{
+      id: 'ravdess-demo',
+      sourceId: 'ravdess',
+      audioPath: 'ravdess/demo.wav',
+      transcript: 'A practice sentence.',
+      language: 'en',
+      emotion: 'happy',
+      split: 'train',
+      speakerHash: 'a'.repeat(16),
+      consent: 'dataset-license',
+      licenseVerified: true,
+    }],
+  }, [{
+    id: 'ravdess',
+    title: 'RAVDESS',
+    url: 'https://example.com/ravdess',
+    license: 'CC BY-NC-SA 4.0',
+    commercialUse: 'restricted',
+    requiresDirectConsent: false,
+    allowedTasks: ['emotion-benchmark'],
+    notes: 'benchmark only',
+  }], { purpose: 'production' });
+  assert.ok(result.errors.some((error) => /not cleared for production/.test(error)));
 });
 
 test('speech-profile-parser-clamps-and-falls-back-safely', () => {

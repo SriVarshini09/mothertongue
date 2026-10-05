@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "common-voice",
+      "title": "Mozilla Common Voice",
+      "url": "https://commonvoice.mozilla.org/en/datasets",
+      "license": "CC0-1.0 per listed dataset release",
+      "commercialUse": "allowed",
+      "requiresDirectConsent": false,
+      "allowedTasks": ["asr", "pronunciation", "language-coverage"],
+      "notes": "Record the exact release, locale, and download date. Do not attempt to identify speakers or combine metadata beyond the published dataset terms. Common Voice is not an emotion-labeled TTS corpus."
+    },
+    {
+      "id": "mothertongue-consented",
+      "title": "MotherTongue direct-consent recordings",
+      "url": "https://github.com/SriVarshini09/mothertongue",
+      "license": "Project-specific written consent",
+      "commercialUse": "allowed",
+      "requiresDirectConsent": true,
+      "allowedTasks": ["emotion", "pronunciation", "tts-style"],
+      "notes": "Use only after a speaker signs explicit recording, training, product, retention, and deletion consent. Store the consent record outside Git and reference it by a non-identifying ID."
+    },
+    {
+      "id": "ravdess",
+      "title": "RAVDESS emotional speech",
+      "url": "https://smartlaboratory.org/resources/speech-song-database-ravdess/",
+      "license": "CC BY-NC-SA 4.0",
+      "commercialUse": "restricted",
+      "requiresDirectConsent": false,
+      "allowedTasks": ["emotion-benchmark"],
+      "notes": "Use for research or benchmarking only unless a separate commercial permission is obtained. Do not place its audio in a production training bundle."
+    },
+    {
+      "id": "emov-db",
+      "title": "EmoV-DB",
+      "url": "https://github.com/numediart/EmoV-DB",
+      "license": "Non-commercial purposes only",
+      "commercialUse": "restricted",
+      "requiresDirectConsent": false,
+      "allowedTasks": ["emotion-benchmark"],
+      "notes": "The dataset license explicitly excludes commercial product incorporation without contacting the rights holder."
+    },
+    {
+      "id": "iemocap",
+      "title": "IEMOCAP",
+      "url": "https://sail.usc.edu/iemocap/iemocap_release.htm",
+      "license": "USC release agreement required",
+      "commercialUse": "request-required",
+      "requiresDirectConsent": false,
+      "allowedTasks": ["emotion-benchmark", "emotion-research"],
+      "notes": "Request access and read the license before downloading or using any files."
+    }
+  ]
+}

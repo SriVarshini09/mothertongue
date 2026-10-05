@@ -1,0 +1,31 @@
+# Voice-training data contract
+
+This directory stores auditable metadata only. Raw audio, processed audio, consent forms, and speaker identity mappings stay outside Git and are ignored by `.gitignore`.
+
+The starter registry is in [`sources.json`](./sources.json), and the metadata manifest is [`manifest.json`](./manifest.json). The manifest is intentionally empty until each clip has a verified license or direct speaker consent.
+
+Run the audit before any training job:
+
+```bash
+npm run audit:voice-data
+npm run audit:voice-data -- --purpose=production --check-files
+```
+
+Each clip must include:
+
+- a source ID and exact source release recorded in the private project notes;
+- a relative audio path under `data/voice/raw/`;
+- transcript, language code, emotion label, and split;
+- a non-identifying speaker hash;
+- `licenseVerified: true`;
+- either a dataset license or a private direct-consent reference;
+- a SHA-256 hash when the processed asset is ready.
+
+For honest evaluation, never put the same speaker in train and validation/test. The audit warns when that happens. Production mode rejects restricted or request-only sources unless a direct-consent record is used.
+
+Recommended first experiment:
+
+1. Use Common Voice for multilingual pronunciation/ASR evaluation.
+2. Collect a small, directly consented set of the same sentences in English, Telugu, and Hindi across neutral, warm, calm, encouraging, excited, empathetic, confident, and storytelling delivery.
+3. Keep the first model focused on emotion/style classification and prosody recommendations. Do not clone a person’s voice without explicit voice-creation consent.
+4. Train outside the web app, then commit only model metadata, checksums, and evaluation reports—not raw voices or private consent records.

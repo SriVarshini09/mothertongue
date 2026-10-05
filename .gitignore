@@ -26,3 +26,9 @@ benchmarks/translation/results-probe/
 
 # Local Tesseract test artifacts (re-downloaded on demand)
 *.traineddata
+
+# Voice-training data stays outside Git. Commit metadata manifests only.
+data/voice/raw/
+data/voice/processed/
+data/voice/private/
+data/voice/*.local.json

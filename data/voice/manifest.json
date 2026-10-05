@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "purpose": "research-benchmark",
+  "sampleRateHz": 16000,
+  "channels": 1,
+  "clips": []
+}
