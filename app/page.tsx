@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import LanguageSelector from '@/components/LanguageSelector';
 import AudioPlayer from '@/components/AudioPlayer';
+import VoicePractice from '@/components/VoicePractice';
 import HistoryDrawer, { HistoryItem } from '@/components/HistoryDrawer';
 import OfflineDrawer from '@/components/OfflineDrawer';
 import LiveCamera from '@/components/LiveCamera';
@@ -1406,6 +1407,7 @@ export default function Home() {
                   onEmotionChange={changeVoiceEmotion}
                 />
               </div>
+              <VoicePractice translated={translated} language={target} emotion={voiceEmotion} />
               {deviceSpeech !== 'idle' && (
                 <div className="device-voice-bar" role="status">
                   <button

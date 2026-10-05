@@ -129,6 +129,17 @@ textarea:focus, input:focus { border-color: #709580; box-shadow: 0 0 0 3px #315d
 .translation { white-space: pre-wrap; font: 20px/1.85 'Literata', 'Noto Serif Telugu', 'Noto Serif Tamil', 'Noto Serif Devanagari', 'Noto Naskh Arabic', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif KR', Georgia, serif; margin: 0 0 20px; overflow-wrap: anywhere; }
 .voice-style-control { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .voice-style-control select { min-height: 34px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); padding: 0 9px; font: inherit; font-weight: 600; }
+.voice-practice { margin-top: 14px; border: 1px solid #d9e5d9; border-radius: 14px; background: #f7faf5; padding: 14px; }
+.voice-practice-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.voice-practice-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.voice-practice-body { border-top: 1px solid #d9e5d9; margin-top: 12px; padding-top: 12px; }
+.practice-progress, .practice-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.practice-line { min-height: 74px; margin: 12px 0; padding: 14px; border-radius: 10px; background: #fff; color: var(--ink); font: 17px/1.7 'Literata', Georgia, serif; }
+.practice-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.practice-actions .recording { background: #a94b45; }
+.practice-recording { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+.practice-recording audio { width: min(100%, 330px); height: 34px; }
+.practice-note { margin: 10px 0 0; }
 .audio-status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .audio-controls { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 14px; }
 .play { width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--green); color: white; display: grid; place-items: center; flex: none; }

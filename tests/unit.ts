@@ -23,6 +23,7 @@ import {
 import { applyVoiceEmotion, defaultDeliveryProfile } from '@/lib/ai/speechStyle';
 import { audioCacheKey } from '@/lib/cache/audio';
 import { voiceEmotionPreset } from '@/lib/speech/emotions';
+import { splitPracticeLines } from '@/lib/speech/practice';
 import { validateManifest } from '@/lib/offline/downloadManager';
 import { speechSchema } from '@/lib/validation/requests';
 import { NLLB_LANGUAGE_CATALOG, NLLB_OFFICIAL_LANGUAGE_COUNT } from '@/lib/offline/nllbLanguages';
@@ -101,6 +102,14 @@ test('speech-request-validates-emotion', () => {
   assert.equal(speechSchema.parse({ text: 'Hello', language: 'English', emotion: 'excited' }).emotion, 'excited');
   assert.equal(speechSchema.parse({ text: 'Hello', language: 'English' }).emotion, 'auto');
   assert.throws(() => speechSchema.parse({ text: 'Hello', language: 'English', emotion: 'angry' }));
+});
+
+test('voice-practice-splits-long-translation-into-repeatable-lines', () => {
+  const lines = splitPracticeLines('First sentence. Second question? ' + 'word '.repeat(60));
+  assert.equal(lines[0], 'First sentence.');
+  assert.equal(lines[1], 'Second question?');
+  assert.ok(lines.length >= 3);
+  assert.ok(lines.every((line) => line.length <= 180));
 });
 
 test('speech-profile-parser-clamps-and-falls-back-safely', () => {
