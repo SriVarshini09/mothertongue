@@ -18,6 +18,7 @@ import {
   type PackManifest,
 } from '@/lib/offline/downloadManager';
 import { storageEstimate } from '@/lib/offline/modelStorage';
+import VoiceDataLab from '@/components/VoiceDataLab';
 
 function capabilityLine(label: string, state: string, detail?: string) {
   return (
@@ -359,6 +360,8 @@ export default function OfflineDrawer({
             </label>
           ))}
         </div>
+
+        <VoiceDataLab />
 
         <h3 className="drawer-sub">Offline languages</h3>
         <div className="lang-search pack-search">

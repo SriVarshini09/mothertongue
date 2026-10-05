@@ -4,6 +4,8 @@ This directory stores auditable metadata only. Raw audio, processed audio, conse
 
 The starter registry is in [`sources.json`](./sources.json), and the metadata manifest is [`manifest.json`](./manifest.json). The manifest is intentionally empty until each clip has a verified license or direct speaker consent.
 
+The in-app Voice Lab can export browser-captured WebM clips and a capture manifest. Those captures intentionally use `sampleRateHz: null` because browser recording does not guarantee a sample rate. Resample and convert them to 16 kHz mono WAV, add SHA-256 values, then set `sampleRateHz` to `16000` before training or production review.
+
 Run the audit before any training job:
 
 ```bash

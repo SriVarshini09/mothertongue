@@ -47,7 +47,8 @@ export type VoiceDataClip = {
 export type VoiceDataManifest = {
   version: number;
   purpose: VoiceDataPurpose;
-  sampleRateHz: number;
+  /** Null means browser-captured audio still needs preprocessing before training. */
+  sampleRateHz: number | null;
   channels: number;
   clips: VoiceDataClip[];
 };
@@ -94,7 +95,13 @@ export function auditVoiceManifest(
   const purpose = options.purpose ?? manifest.purpose;
 
   if (manifest.version !== 1) errors.push(`unsupported manifest version: ${String(manifest.version)}`);
-  if (manifest.sampleRateHz !== 16000) errors.push('sampleRateHz must be 16000');
+  if (manifest.sampleRateHz !== 16000) {
+    if (manifest.sampleRateHz === null && purpose === 'research-benchmark') {
+      warnings.push('sampleRateHz is unknown for browser captures; preprocess to 16000 Hz mono before training');
+    } else {
+      errors.push('sampleRateHz must be 16000');
+    }
+  }
   if (manifest.channels !== 1) errors.push('channels must be 1 (mono)');
   if (!Array.isArray(manifest.clips)) errors.push('clips must be an array');
 

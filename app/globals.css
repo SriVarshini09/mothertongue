@@ -140,6 +140,21 @@ textarea:focus, input:focus { border-color: #709580; box-shadow: 0 0 0 3px #315d
 .practice-recording { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
 .practice-recording audio { width: min(100%, 330px); height: 34px; }
 .practice-note { margin: 10px 0 0; }
+.voice-lab { margin: 14px 0; border: 1px solid #d9e5d9; border-radius: 12px; background: #f7faf5; }
+.voice-lab > summary { cursor: pointer; padding: 12px 13px; color: var(--green); font-size: 13px; font-weight: 800; }
+.voice-lab-body { border-top: 1px solid #d9e5d9; padding: 12px 13px; }
+.voice-lab-consent { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0; color: var(--ink); font-size: 12px; line-height: 1.45; }
+.voice-lab-consent input { margin-top: 2px; accent-color: var(--green); }
+.voice-lab-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.voice-lab-fields label { display: grid; gap: 5px; color: var(--muted); font-size: 11px; font-weight: 800; }
+.voice-lab-fields select { min-height: 34px; min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); padding: 0 7px; font: inherit; }
+.voice-lab-prompt { display: grid; gap: 6px; margin: 12px 0; padding: 12px; border-radius: 9px; background: #fff; color: var(--ink); }
+.voice-lab-prompt span, .voice-lab-progress { color: var(--muted); font-size: 11px; font-weight: 700; }
+.voice-lab-prompt strong { font: 15px/1.6 'Literata', Georgia, serif; }
+.voice-lab-actions, .voice-lab-export, .voice-lab-progress { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.voice-lab-progress { justify-content: space-between; margin-top: 11px; }
+.voice-lab-export { margin-top: 10px; }
+.voice-lab-note { margin: 10px 0 0; }
 .audio-status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .audio-controls { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 14px; }
 .play { width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--green); color: white; display: grid; place-items: center; flex: none; }

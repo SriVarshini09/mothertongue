@@ -144,6 +144,28 @@ test('voice-data-audit-blocks-restricted-production-sources', () => {
   assert.ok(result.errors.some((error) => /not cleared for production/.test(error)));
 });
 
+test('voice-data-audit-keeps-browser-captures-research-only-until-processed', () => {
+  const result = auditVoiceManifest({
+    version: 1,
+    purpose: 'research-benchmark',
+    sampleRateHz: null,
+    channels: 1,
+    clips: [],
+  }, []);
+  assert.equal(result.errors.length, 0);
+  assert.ok(result.warnings.some((warning) => /preprocess to 16000 Hz mono/.test(warning)));
+
+  const production = auditVoiceManifest({
+    version: 1,
+    purpose: 'research-benchmark',
+    sampleRateHz: null,
+    channels: 1,
+    clips: [],
+  }, [], { purpose: 'production' });
+  assert.ok(production.errors.some((error) => /sampleRateHz must be 16000/.test(error)));
+  assert.ok(production.errors.some((error) => /purpose=production/.test(error)));
+});
+
 test('speech-profile-parser-clamps-and-falls-back-safely', () => {
   const profile = parseDeliveryProfile(
     '{"contentType":"question","tone":"clear","pace":"brisk","energy":"high","expressiveness":2}',
