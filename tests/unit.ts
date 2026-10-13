@@ -23,6 +23,7 @@ import {
 import { applyVoiceEmotion, defaultDeliveryProfile } from '@/lib/ai/speechStyle';
 import { audioCacheKey } from '@/lib/cache/audio';
 import { voiceEmotionPreset } from '@/lib/speech/emotions';
+import { SUPPORT_INTENTS, SUPPORT_SAFETY_NOTE, supportScriptFor } from '@/lib/support/scripts';
 import { splitPracticeLines } from '@/lib/speech/practice';
 import { auditVoiceManifest } from '@/lib/speech/dataManifest';
 import { validateManifest } from '@/lib/offline/downloadManager';
@@ -97,6 +98,18 @@ test('voice-emotion-presets-change-delivery-only', () => {
   assert.match(calm.ttsInstructions, /do not add, remove, paraphrase, translate, or change any words/);
   assert.notEqual(calm.ttsInstructions, excited.ttsInstructions);
   assert.equal(voiceEmotionPreset('auto'), null);
+});
+
+test('support-voice-is-localized-and-has-safe-fallback-boundaries', () => {
+  const telugu = supportScriptFor('Telugu', 'ground');
+  assert.equal(telugu.localized, true);
+  assert.equal(telugu.language, 'Telugu');
+  assert.ok(telugu.text.length > 20);
+  assert.deepEqual(SUPPORT_INTENTS, ['pause', 'ground', 'encourage', 'listen']);
+  const fallback = supportScriptFor('Japanese', 'pause');
+  assert.equal(fallback.localized, false);
+  assert.equal(fallback.language, 'English');
+  assert.match(SUPPORT_SAFETY_NOTE, /not medical care/);
 });
 
 test('speech-request-validates-emotion', () => {

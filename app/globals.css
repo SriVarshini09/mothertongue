@@ -155,6 +155,24 @@ textarea:focus, input:focus { border-color: #709580; box-shadow: 0 0 0 3px #315d
 .voice-lab-progress { justify-content: space-between; margin-top: 11px; }
 .voice-lab-export { margin-top: 10px; }
 .voice-lab-note { margin: 10px 0 0; }
+.support-voice { margin-top: 18px; border: 1px solid #d8e2dc; border-radius: 14px; background: linear-gradient(135deg, #f7faf5, #f9f7f1); }
+.support-voice > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 13px 14px; color: var(--green); font-size: 13px; font-weight: 800; }
+.support-voice-body { border-top: 1px solid #d8e2dc; padding: 14px; }
+.support-voice-intro { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.support-voice-intro strong { color: var(--ink); font-size: 14px; }
+.support-voice-intro p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.support-voice-badge { flex: none; border-radius: 999px; padding: 4px 8px; background: #e5f0e5; color: var(--green); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.support-intent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 13px 0; }
+.support-intent { min-height: 38px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--muted); padding: 7px 8px; font: inherit; font-size: 11px; font-weight: 700; }
+.support-intent:hover, .support-intent.selected { border-color: #8eaa91; background: #edf5ed; color: var(--green); }
+.support-script { margin: 0 0 12px; padding: 13px; border-radius: 10px; background: #fff; color: var(--ink); font: 16px/1.7 'Literata', 'Noto Serif Telugu', 'Noto Serif Devanagari', Georgia, serif; }
+.support-voice-actions, .support-custom-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.support-voice-status { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.support-custom-label { display: block; margin-top: 14px; color: var(--muted); font-size: 11px; font-weight: 800; }
+.support-custom-text { width: 100%; margin: 6px 0 8px; min-height: 70px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); padding: 10px; resize: vertical; font: 14px/1.5 'Literata', Georgia, serif; }
+.support-custom-actions { justify-content: space-between; }
+.support-note { margin: 9px 0 0; }
+.support-safety-note { margin: 14px 0 0; padding-top: 11px; border-top: 1px solid #e2e7e0; color: #69756c; font-size: 11px; line-height: 1.5; }
 .audio-status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .audio-controls { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 14px; }
 .play { width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--green); color: white; display: grid; place-items: center; flex: none; }

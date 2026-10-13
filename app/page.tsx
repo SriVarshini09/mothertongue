@@ -24,6 +24,7 @@ import {
 import LanguageSelector from '@/components/LanguageSelector';
 import AudioPlayer from '@/components/AudioPlayer';
 import VoicePractice from '@/components/VoicePractice';
+import SupportVoice from '@/components/SupportVoice';
 import HistoryDrawer, { HistoryItem } from '@/components/HistoryDrawer';
 import OfflineDrawer from '@/components/OfflineDrawer';
 import LiveCamera from '@/components/LiveCamera';
@@ -1381,6 +1382,7 @@ export default function Home() {
                 {sourceLabel} · {sourceText.length.toLocaleString()} characters
               </div>
             )}
+            <SupportVoice language={target} onStopExistingSpeech={stopDeviceSpeech} />
           </div>
 
           {translated && (
