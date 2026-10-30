@@ -32,6 +32,7 @@ button:disabled { cursor: not-allowed; }
 .mark { height: 34px; width: 34px; border-radius: 11px; background: var(--green); color: #fff; display: grid; place-items: center; font-family: 'Literata', Georgia, serif; }
 .quiet { border: 0; background: transparent; color: var(--muted); display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 9px; font-weight: 600; }
 .quiet:hover { color: var(--ink); background: #eef2ec; }
+.account-trigger { max-width: 180px; }
 main { padding-bottom: 84px; }
 .hero { text-align: center; padding: 57px 0 36px; }
 .eyebrow { font-size: 12px; color: var(--green); font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
@@ -173,6 +174,21 @@ textarea:focus, input:focus { border-color: #709580; box-shadow: 0 0 0 3px #315d
 .support-custom-actions { justify-content: space-between; }
 .support-note { margin: 9px 0 0; }
 .support-safety-note { margin: 14px 0 0; padding-top: 11px; border-top: 1px solid #e2e7e0; color: #69756c; font-size: 11px; line-height: 1.5; }
+.account-panel { position: fixed; inset: 0; z-index: 40; display: flex; justify-content: flex-end; background: #13251f4d; }
+.account-drawer { width: min(440px, 100%); height: 100%; overflow: auto; background: #fff; padding: 28px; box-shadow: -18px 0 44px #13251f22; }
+.account-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.account-head h2 { margin: 5px 0 0; font-size: 24px; font-weight: 500; }
+.account-kicker { color: var(--green); font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.account-privacy { margin: 18px 0; padding: 12px; border-radius: 10px; background: var(--pale); color: #536359; font-size: 12px; line-height: 1.55; }
+.account-form { display: grid; gap: 15px; }
+.account-form label { display: grid; gap: 7px; color: var(--ink); font-size: 12px; font-weight: 800; }
+.account-form input, .account-form select { width: 100%; min-height: 45px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); padding: 0 11px; outline: none; }
+.account-form input { font-size: 14px; }
+.account-form select { font-size: 13px; }
+.account-save { justify-content: center; margin-top: 3px; }
+.account-note { margin: 13px 0 0; color: var(--green); font-size: 12px; font-weight: 700; }
+.account-remove { margin-top: 21px; color: var(--danger); padding-left: 0; }
+.account-next-step { margin-top: 26px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.55; }
 .audio-status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .audio-controls { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 14px; }
 .play { width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--green); color: white; display: grid; place-items: center; flex: none; }

@@ -25,6 +25,7 @@ import LanguageSelector from '@/components/LanguageSelector';
 import AudioPlayer from '@/components/AudioPlayer';
 import VoicePractice from '@/components/VoicePractice';
 import SupportVoice from '@/components/SupportVoice';
+import AccountPanel from '@/components/AccountPanel';
 import HistoryDrawer, { HistoryItem } from '@/components/HistoryDrawer';
 import OfflineDrawer from '@/components/OfflineDrawer';
 import LiveCamera from '@/components/LiveCamera';
@@ -804,6 +805,7 @@ export default function Home() {
             <History size={18} aria-hidden />
             <span className="hide-mobile">History</span>
           </button>
+          <AccountPanel currentTargetLanguage={target} onTargetLanguageChange={changeTarget} />
         </div>
       </header>
 

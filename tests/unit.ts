@@ -24,6 +24,7 @@ import { applyVoiceEmotion, defaultDeliveryProfile } from '@/lib/ai/speechStyle'
 import { audioCacheKey } from '@/lib/cache/audio';
 import { voiceEmotionPreset } from '@/lib/speech/emotions';
 import { SUPPORT_INTENTS, SUPPORT_SAFETY_NOTE, supportScriptFor } from '@/lib/support/scripts';
+import { accountCopy, accountLanguageInfo, createLocalProfile } from '@/lib/account/profile';
 import { splitPracticeLines } from '@/lib/speech/practice';
 import { auditVoiceManifest } from '@/lib/speech/dataManifest';
 import { validateManifest } from '@/lib/offline/downloadManager';
@@ -110,6 +111,20 @@ test('support-voice-is-localized-and-has-safe-fallback-boundaries', () => {
   assert.equal(fallback.localized, false);
   assert.equal(fallback.language, 'English');
   assert.match(SUPPORT_SAFETY_NOTE, /not medical care/);
+});
+
+test('local-account-profile-supports-language-and-direction', () => {
+  const profile = createLocalProfile('Lakshmi', 'Telugu', 'Hindi', 123);
+  assert.deepEqual(profile, {
+    version: 1,
+    displayName: 'Lakshmi',
+    interfaceLanguage: 'Telugu',
+    preferredLanguage: 'Hindi',
+    createdAt: 123,
+  });
+  assert.equal(accountLanguageInfo('Arabic').dir, 'rtl');
+  assert.match(accountCopy('Telugu').create, /ఖాతా/);
+  assert.equal(accountLanguageInfo('Unknown').name, 'English');
 });
 
 test('speech-request-validates-emotion', () => {
