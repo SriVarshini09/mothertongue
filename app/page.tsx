@@ -11,6 +11,7 @@ import {
   History,
   Languages,
   Loader2,
+  Mic,
   Pause,
   Play,
   RotateCcw,
@@ -26,6 +27,7 @@ import AudioPlayer from '@/components/AudioPlayer';
 import VoicePractice from '@/components/VoicePractice';
 import SupportVoice from '@/components/SupportVoice';
 import AccountPanel from '@/components/AccountPanel';
+import VoiceInput from '@/components/VoiceInput';
 import HistoryDrawer, { HistoryItem } from '@/components/HistoryDrawer';
 import OfflineDrawer from '@/components/OfflineDrawer';
 import LiveCamera from '@/components/LiveCamera';
@@ -49,7 +51,7 @@ import { loadMode, saveMode, type EngineMode } from '@/lib/offline/mode';
 import { packCapabilities, type PackCapabilitySummary } from '@/lib/offline/languagePacks';
 import type { VoiceEmotion } from '@/types/speech';
 
-type Tab = 'text' | 'camera' | 'upload';
+type Tab = 'text' | 'camera' | 'upload' | 'speak';
 
 type PageImage = { id: string; file: File; url: string };
 
@@ -887,6 +889,7 @@ export default function Home() {
                 { id: 'text', label: 'Text', Icon: FileText },
                 { id: 'camera', label: 'Camera', Icon: Camera },
                 { id: 'upload', label: 'Upload', Icon: Upload },
+                { id: 'speak', label: 'Speak', Icon: Mic },
               ] as const
             ).map(({ id, label, Icon }) => (
               <button
@@ -937,6 +940,18 @@ export default function Home() {
                   )}
                 </div>
               </div>
+            )}
+
+            {tab === 'speak' && (
+              <VoiceInput
+                sourceLanguage={sourceLanguage}
+                value={sourceText}
+                onChange={(value) => {
+                  setSourceText(value);
+                  setSourceLabel('Speech input · review the transcription below');
+                  if (translated) clearTranslation();
+                }}
+              />
             )}
 
             {tab === 'camera' && (

@@ -6,7 +6,7 @@ export type HistoryItem = {
   original: string;
   translated: string;
   language: string;
-  source: 'text' | 'camera' | 'upload';
+  source: 'text' | 'camera' | 'upload' | 'speak';
   date: number;
   translationEngine?: 'cloud' | 'local';
   speechEngine?: 'cloud' | 'device';
@@ -60,7 +60,7 @@ export default function HistoryDrawer({
                   <div className="history-snippet">{h.original}</div>
                   <small className="muted">
                     {new Date(h.date).toLocaleString()} ·{' '}
-                    {h.source === 'text' ? 'Text' : h.source === 'camera' ? 'Camera' : 'Upload'}
+                    {h.source === 'text' ? 'Text' : h.source === 'camera' ? 'Camera' : h.source === 'speak' ? 'Speak' : 'Upload'}
                     {h.speechEngine === 'device' ? ' · Offline voice' : ''}
                   </small>
                 </button>

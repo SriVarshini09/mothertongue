@@ -189,6 +189,20 @@ textarea:focus, input:focus { border-color: #709580; box-shadow: 0 0 0 3px #315d
 .account-note { margin: 13px 0 0; color: var(--green); font-size: 12px; font-weight: 700; }
 .account-remove { margin-top: 21px; color: var(--danger); padding-left: 0; }
 .account-next-step { margin-top: 26px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.55; }
+.voice-input { padding: 9px 0 2px; }
+.voice-input-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.voice-input-head strong { color: var(--ink); font-size: 16px; }
+.voice-input-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+.voice-input-badge { flex: none; border-radius: 999px; padding: 5px 8px; background: #edf3ec; color: var(--green); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.voice-input-card { display: flex; align-items: center; gap: 15px; margin-top: 18px; padding: 18px; border: 1px solid #d9e5d9; border-radius: 14px; background: #f7faf5; }
+.voice-mic-button { width: 64px; height: 64px; flex: none; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--green); color: #fff; box-shadow: 0 5px 14px #315d4a26; }
+.voice-mic-button:hover { background: var(--green-dark); }
+.voice-mic-button.recording { background: var(--danger); animation: pulse 1.4s ease-in-out infinite; }
+.voice-input-copy { display: grid; gap: 5px; min-width: 0; }
+.voice-input-copy strong { color: var(--ink); font-size: 14px; }
+.voice-input-copy span { color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.voice-input-privacy { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.voice-input-note { margin: 9px 0 0; }
 .audio-status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .audio-controls { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 14px; }
 .play { width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--green); color: white; display: grid; place-items: center; flex: none; }
